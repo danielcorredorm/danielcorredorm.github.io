@@ -1,0 +1,35 @@
+---
+import Base from '../../layouts/Base.astro';
+import YouTube from '../../components/YouTube.astro';
+---
+<Base title="Projects" description="Unreal Engine demos and code samples by Daniel Corredor: GAS action combat, multiplayer capture the flag, and a GAS multiplayer course project.">
+  <h1>Projects</h1>
+  <p class="lead">Code I can show in full. Commercial work is on the <a href="/games/">Games</a> page.</p>
+
+  <div class="cards">
+    <a class="card featured" href="/projects/ils-demo/">
+      <div class="meta">Featured · UE 5.4 · C++ · GAS · Technical breakdown</div>
+      <h3>GAS action-combat demo (ILS_Demo)</h3>
+      <p>My technical test for Indie Level Studio. Data-driven ability sets, abilities bound to input by Gameplay Tag, native tags, a custom root-motion dash task, combo windows from an AnimNotifyState and ability costs from a Magnitude Calculation. Read the breakdown →</p>
+    </a>
+  </div>
+
+  <section>
+    <h2>Capture the Flag multiplayer demo</h2>
+    <p><span class="badge">UE 4.27</span> <span class="badge">C++</span> <span class="badge">Multiplayer</span></p>
+    <p>A multiplayer capture-the-flag demo built in C++ for a technical test.</p>
+    <YouTube id="CHmQ_FNKYJk" title="Unreal Engine 4.27 Multiplayer Capture The Flag Demo" />
+    <p><a href="https://github.com/danielcorredorm/CaptureTheFlagMultiplayerDemo">Source on GitHub</a></p>
+  </section>
+
+  <section>
+    <h2>GAS multiplayer — course project</h2>
+    <p><span class="badge">UE 4.25</span> <span class="badge">C++</span> <span class="badge">Course project</span></p>
+    <p>
+      Project from the course <em>Multiplayer Video Game Development in Unreal Engine</em> (Arkde, 2020–2021):
+      a multiplayer game using the Gameplay Ability System, built while following the course.
+    </p>
+    <YouTube id="8h8SWPf-Ca4" title="Unreal Engine 4 Multiplayer Demo" />
+    <p><a href="https://github.com/danielcorredorm/UnrealEngine-GAS_Multiplayer">Source on GitHub</a></p>
+  </section>
+</Base>

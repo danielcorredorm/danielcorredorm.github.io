@@ -1,0 +1,17 @@
+---
+import Base from '../../layouts/Base.astro';
+import { games } from '../../data/games.mjs';
+---
+<Base title="Games" description="Games Daniel Corredor has worked on as a gameplay engineer in Unreal Engine.">
+  <h1>Games</h1>
+  <p class="lead">Commercial games I worked on as a gameplay engineer, with what I built on each one.</p>
+  <div class="cards">
+    {games.map((g) => (
+      <a class="card" href={g.href}>
+        <div class="meta">{g.meta}</div>
+        <h3>{g.title}</h3>
+        <p>{g.summary}</p>
+      </a>
+    ))}
+  </div>
+</Base>

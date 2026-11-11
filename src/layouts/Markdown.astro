@@ -1,0 +1,28 @@
+---
+// Layout for the Markdown pages (games, projects, about).
+// Frontmatter fields: title, description, and optionally `facts` (label → value)
+// shown as a box under the title, and `video` (YouTube id) shown under it.
+import Base from './Base.astro';
+import YouTube from '../components/YouTube.astro';
+
+const { frontmatter } = Astro.props;
+const facts: Record<string, string> = frontmatter.facts ?? {};
+---
+<Base title={frontmatter.title} description={frontmatter.description}>
+  <article>
+    <h1>{frontmatter.title}</h1>
+    {frontmatter.tagline && <p class="tagline">{frontmatter.tagline}</p>}
+    {Object.keys(facts).length > 0 && (
+      <dl class="facts">
+        {Object.entries(facts).map(([k, v]) => (
+          <>
+            <dt>{k}</dt>
+            <dd set:html={v} />
+          </>
+        ))}
+      </dl>
+    )}
+    {frontmatter.video && <YouTube id={frontmatter.video} title={frontmatter.videoTitle ?? frontmatter.title} />}
+    <slot />
+  </article>
+</Base>
