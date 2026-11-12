@@ -7,6 +7,8 @@
   --text-muted: #9aa3b5;
   --accent: #ff8a3d;
   --accent-soft: rgba(255, 138, 61, 0.12);
+  --button-bg: #ff8a3d;
+  --button-text: #14100c;
   --todo-bg: #3a2f00;
   --todo-border: #c9a400;
   --radius: 10px;
@@ -23,6 +25,8 @@
     --text-muted: #566070;
     --accent: #d4571a;
     --accent-soft: rgba(212, 87, 26, 0.1);
+    --button-bg: #b4470f;
+    --button-text: #ffffff;
     --todo-bg: #fff6cc;
     --todo-border: #c9a400;
     color-scheme: light;
@@ -102,11 +106,35 @@ h3 { font-size: 19px; margin-top: 32px; }
   padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--text-muted);
 }
 
-/* Reel placeholder */
-.reel-placeholder {
-  text-align: center; border: 1px dashed var(--border); border-radius: var(--radius);
-  color: var(--text-muted); margin: 24px 0; background: var(--bg-raised); padding: 40px 16px;
+/* Two-column card grid (Home "Featured work"): one column on phones */
+.cards.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 640px) {
+  .cards.cols-2 { grid-template-columns: 1fr; }
 }
+
+/* Home hero: portrait beside the intro, above it on phones */
+.hero { display: grid; grid-template-columns: 1fr 180px; gap: 32px; align-items: center; }
+.hero > div { grid-row: 1; grid-column: 1; }
+.hero .portrait {
+  grid-row: 1; grid-column: 2;
+  width: 180px; height: 180px; object-fit: cover; border-radius: 50%;
+  border: 3px solid var(--accent); background: var(--bg-raised);
+}
+@media (max-width: 640px) {
+  .hero { grid-template-columns: 1fr; gap: 20px; }
+  .hero .portrait { grid-row: auto; grid-column: auto; width: 120px; height: 120px; }
+  .hero > div { grid-row: auto; }
+}
+
+/* Buttons */
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0 0; }
+.button {
+  display: inline-block; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--border);
+  color: var(--text); background: var(--bg-raised); text-decoration: none; font-weight: 600; font-size: 15px;
+}
+.button:hover { border-color: var(--accent); }
+.button.primary { background: var(--button-bg); border-color: var(--button-bg); color: var(--button-text); }
+.button.primary:hover { filter: brightness(1.08); }
 
 /* Draft-only notes. Remove every .todo before publishing (npm run todos lists them). */
 .todo {

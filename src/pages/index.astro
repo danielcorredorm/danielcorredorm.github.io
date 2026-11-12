@@ -1,31 +1,41 @@
 ---
+import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import YouTube from '../components/YouTube.astro';
 import { site } from '../data/site.mjs';
 import { games } from '../data/games.mjs';
+import portrait from '../assets/daniel.jpg';
 ---
 <Base>
-  <section>
-    <h1>{site.name}</h1>
-    <p class="tagline">{site.headline}</p>
-    <p class="lead">
-      5+ years building C++ and Blueprint gameplay systems in Unreal Engine 4 and 5.
-      Shipped a multiplayer AA title, <a href="/games/killer-klowns/">Killer Klowns From Outer Space: The Game</a>.
-      I specialize in the Gameplay Ability System (GAS), multiplayer network replication,
-      combat and AI mechanics, and performance optimization.
-    </p>
+  <section class="hero">
+    <Image class="portrait" src={portrait} alt="Daniel Corredor" width={320} height={320} loading="eager" />
+    <div>
+      <h1>{site.name}</h1>
+      <p class="tagline">{site.headline}</p>
+      <p class="lead">
+        5+ years building C++ and Blueprint gameplay systems in Unreal Engine 4 and 5.
+        Shipped a multiplayer AA title, <a href="/games/killer-klowns/">Killer Klowns From Outer Space: The Game</a>.
+        I specialize in the Gameplay Ability System (GAS), multiplayer network replication,
+        combat and AI mechanics, and performance optimization.
+      </p>
+      <p class="actions">
+        <a class="button primary" href={`mailto:${site.email}`}>Email me</a>
+        <a class="button" href={site.links.linkedin}>LinkedIn</a>
+        <a class="button" href={site.links.github}>GitHub</a>
+      </p>
+    </div>
   </section>
 
-  <section aria-labelledby="reel">
-    <h2 id="reel">Demo reel</h2>
-    {site.reelId
-      ? <YouTube id={site.reelId} title="Daniel Corredor — Gameplay programming reel" />
-      : <div class="reel-placeholder">Demo reel coming soon.</div>}
-  </section>
+  {site.reelId && (
+    <section aria-labelledby="reel">
+      <h2 id="reel">Demo reel</h2>
+      <YouTube id={site.reelId} title="Daniel Corredor — Gameplay programming reel" />
+    </section>
+  )}
 
   <section aria-labelledby="work">
     <h2 id="work">Featured work</h2>
-    <div class="cards">
+    <div class="cards cols-2">
       <a class="card featured" href="/projects/ils-demo/">
         <div class="meta">Technical breakdown · UE 5.4 · C++</div>
         <h3>GAS action-combat demo (ILS_Demo)</h3>

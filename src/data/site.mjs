@@ -11,6 +11,6 @@ export const site = {
     github: 'https://github.com/danielcorredorm',
     itch: 'https://darkfenix2787.itch.io/',
   },
-  // YouTube id of the demo reel. Leave empty until the reel exists.
+  // YouTube id of the demo reel. While empty, the Home page hides the reel section.
   reelId: '',
 };

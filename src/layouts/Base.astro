@@ -10,6 +10,9 @@ interface Props {
 const { title, description = site.description } = Astro.props;
 const fullTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.headline}`;
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+// Link previews (LinkedIn, WhatsApp, X): absolute URLs built from `site` in astro.config.mjs.
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL('/og.png', Astro.site).href;
 const nav = [
   { href: '/', label: 'Home' },
   { href: '/games/', label: 'Games' },
@@ -31,6 +34,14 @@ const isCurrent = (href: string) => {
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${site.name} — ${site.headline}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
@@ -52,9 +63,7 @@ const isCurrent = (href: string) => {
     </main>
     <footer class="site-footer">
       <div class="wrap">
-        {site.name} · {site.headline} ·
-        <a href={site.links.github}>GitHub</a> ·
-        <a href={site.links.linkedin}>LinkedIn</a>
+        <span>{site.name} · {site.headline}</span>{' · '}<a href={site.links.github}>GitHub</a>{' · '}<a href={site.links.linkedin}>LinkedIn</a>
       </div>
     </footer>
   </body>
