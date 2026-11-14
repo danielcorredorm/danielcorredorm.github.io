@@ -13,9 +13,8 @@ facts:
   Links: "<a href=\"https://store.steampowered.com/app/2445510/Contenders_Arena/\">Steam</a> · <a href=\"https://gamerant.com/contenders-arena-hands-on-preview/\">Game Rant preview</a>"
 video: "ZDS5orT1VqM"
 videoTitle: "Contenders: Arena — Gameplay Trailer"
+videoNote: "The official gameplay trailer. It shows the game, not only my part of it."
 ---
-
-*Video: the official gameplay trailer. It shows the game, not only my part of it.*
 
 ## What I built
 

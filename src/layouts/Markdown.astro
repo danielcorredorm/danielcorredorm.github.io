@@ -1,28 +1,56 @@
 ---
 // Layout for the Markdown pages (games, projects, about).
-// Frontmatter fields: title, description, and optionally `facts` (label → value)
-// shown as a box under the title, and `video` (YouTube id) shown under it.
-import Base from './Site.astro';
+// Frontmatter: title, description, tagline. A page with `facts` (label → value) is a game or project file and
+// gets the same top: facts beside a small video (when there is one), then a gallery of up to four screenshots.
+// Optional: `video` (YouTube id), `videoTitle`, `videoNote` (caption under the video), `source` (repository link,
+// shown as a button beside the title). Images come from src/assets/media/<slug>/.
+import { Image } from 'astro:assets';
+import Site from './Site.astro';
 import YouTube from '../components/YouTube.astro';
+import { mediaFor, slugOf, SHOTS } from '../data/media.mjs';
 
 const { frontmatter } = Astro.props;
 const facts: Record<string, string> = frontmatter.facts ?? {};
+const isFile = Object.keys(facts).length > 0;
+const media = mediaFor(slugOf(Astro.url.pathname));
+const shots = media.shots.slice(0, SHOTS).map((s) => s.img);
 ---
-<Base title={frontmatter.title} description={frontmatter.description}>
+<Site title={frontmatter.title} description={frontmatter.description}>
   <article>
-    <h1>{frontmatter.title}</h1>
-    {frontmatter.tagline && <p class="tagline">{frontmatter.tagline}</p>}
-    {Object.keys(facts).length > 0 && (
-      <dl class="facts">
-        {Object.entries(facts).map(([k, v]) => (
-          <>
-            <dt>{k}</dt>
-            <dd set:html={v} />
-          </>
-        ))}
-      </dl>
+    <header class="page-head">
+      <div>
+        <h1>{frontmatter.title}</h1>
+        {frontmatter.tagline && <p class="tagline">{frontmatter.tagline}</p>}
+      </div>
+      {frontmatter.source && <a class="src-btn" href={frontmatter.source}>Source on GitHub</a>}
+    </header>
+    {isFile && (
+      <div class:list={['file-top', { solo: !frontmatter.video }]}>
+        <dl class="facts">
+          {Object.entries(facts).map(([k, v]) => (
+            <>
+              <dt>{k}</dt>
+              <dd set:html={v} />
+            </>
+          ))}
+        </dl>
+        {frontmatter.video && (
+          <div class="file-media">
+            <YouTube id={frontmatter.video} title={frontmatter.videoTitle ?? frontmatter.title} />
+            {frontmatter.videoNote && <p class="media-note">{frontmatter.videoNote}</p>}
+          </div>
+        )}
+      </div>
     )}
-    {frontmatter.video && <YouTube id={frontmatter.video} title={frontmatter.videoTitle ?? frontmatter.title} />}
+    {isFile && media.shots.length > 0 && (
+      <ul class="gallery" aria-label="Screenshots">
+        {shots.map((img, i) => (
+          <li>
+            <Image src={img} alt={`${frontmatter.title}, screenshot ${i + 1}`} widths={[480, 1920]} sizes="(max-width: 700px) 50vw, 240px" />
+          </li>
+        ))}
+      </ul>
+    )}
     <slot />
   </article>
-</Base>
+</Site>

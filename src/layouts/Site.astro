@@ -3,6 +3,7 @@
 // living background, and the page script that drives them.
 import '../styles/global.css';
 import '../styles/theme.css';
+import { ClientRouter } from 'astro:transitions';
 import { site } from '../data/site.mjs';
 
 interface Props {
@@ -50,12 +51,15 @@ const isCurrent = (href: string) => {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600&display=swap" />
     <script is:inline>document.documentElement.classList.add('js-nav');</script>
+    <!-- Pages swap in place, so the menu and the background keep running between them. -->
+    <ClientRouter />
   </head>
   <body>
-    <!-- Living background: a slow drifting glow, plus fine light strands and motes drawn on a canvas.
-         Decorative; with reduced motion the canvas draws one still frame. -->
-    <div class="rpg-fx" aria-hidden="true"><i></i><canvas></canvas></div>
-    <header class="site-header">
+    <!-- Living background: a slow drifting glow, faint diagonal lines, fine light strands and motes drawn on a canvas,
+         and a sheen that crosses the screen every 20 seconds. Decorative; it keeps running while pages change.
+         With reduced motion the canvas draws one still frame and nothing else moves. -->
+    <div class="rpg-fx" aria-hidden="true" transition:persist="fx"><i></i><span class="rpg-lines"></span><canvas></canvas><span class="rpg-sheen"></span></div>
+    <header class="site-header" transition:persist="menu">
       <div class="wrap">
         <a class="brand" href="/">{site.name}</a>
         <button type="button" class="nav-toggle" aria-controls="nav-panel" aria-expanded="false">
@@ -72,9 +76,9 @@ const isCurrent = (href: string) => {
             <p class="contact-loc">Based in {site.location}. Open to remote roles and relocation.</p>
             <ul class="contact-list">
               <li>
-                <a href={`mailto:${site.email}`}>
+                <a href={`mailto:${site.email}`} title={site.email}>
                   <span class="contact-ico" aria-hidden="true"><svg viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.5 3h13a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5Zm.9 1.2L8 8.6l5.6-4.4H2.4ZM14 5.2 8.3 9.7a.5.5 0 0 1-.6 0L2 5.2v6.6h12V5.2Z" /></svg></span>
-                  <span class="contact-txt"><b>Email</b><small>{site.email}</small></span>
+                  <span class="contact-txt"><b>Email</b></span>
                 </a>
               </li>
               <li>
@@ -108,26 +112,82 @@ const isCurrent = (href: string) => {
     </main>
     <footer class="site-footer">
       <div class="wrap">
-        <span>{site.name} · {site.headline}</span>{' · '}<a href={site.links.github}>GitHub</a>{' · '}<a href={site.links.linkedin}>LinkedIn</a>
+        <span>{site.name} · {site.headline}</span>
       </div>
     </footer>
+    <!-- Enlarged image, opened by the page script when an image in a page is clicked. -->
+    <dialog class="lightbox" aria-label="Enlarged image"><img alt="" /><button type="button" class="lightbox-close" aria-label="Close">Close</button></dialog>
     <script is:inline>
+      // The menu and the living background stay in place while pages change (see ClientRouter and transition:persist
+      // above), so their setup runs once. What belongs to a page is set up again on every astro:page-load.
       (() => {
+        if (window.__rpgSite) return;
+        window.__rpgSite = true;
+        const root = document.documentElement;
         const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        // Phones: the menu and the contact block fold into a button on a bar that stays at the top of the screen.
+        // ---------- Once: menu ----------
         const bar = document.querySelector('.site-header .wrap');
         const nav = bar?.querySelector('.site-nav');
         const btn = bar?.querySelector('.nav-toggle');
+        // Phones: the menu and the contact block fold into a button on a bar that stays at the top of the screen.
+        const setNav = (open) => { root.classList.toggle('nav-open', open); btn?.setAttribute('aria-expanded', String(open)); };
         if (bar && nav && btn) {
-          const root = document.documentElement;
-          const setNav = (open) => { root.classList.toggle('nav-open', open); btn.setAttribute('aria-expanded', String(open)); };
           btn.addEventListener('click', () => setNav(!root.classList.contains('nav-open')));
           nav.addEventListener('click', (e) => { if (e.target.closest('a')) setNav(false); });
           addEventListener('keydown', (e) => { if (e.key === 'Escape' && root.classList.contains('nav-open')) { setNav(false); btn.focus(); } });
           document.addEventListener('click', (e) => { if (!bar.contains(e.target)) setNav(false); });
         }
+        // A page swap replaces the classes on <html>; put this one back before the new page paints.
+        document.addEventListener('astro:after-swap', () => root.classList.add('js-nav'));
 
+        // The background is carried into the next page, and a CSS animation starts over when its element is moved.
+        // Put each one back where it was (a negative delay), so the sheen keeps its own clock and never fires on a page change.
+        const born = performance.now();
+        const loops = [['.rpg-sheen', 20], ['.rpg-lines', 60], ['.rpg-fx i', 76]]; // selector, seconds per full cycle
+        document.addEventListener('astro:after-swap', () => {
+          const t = (performance.now() - born) / 1000;
+          for (const [sel, len] of loops) {
+            const el = document.querySelector(sel);
+            if (el) el.style.animationDelay = -(t % len) + 's';
+          }
+        });
+
+        // One pointing hand per menu: it rests on the menu's home item and follows the pointer and the keyboard.
+        const handFor = (box, homeSel, wide, signal) => {
+          const items = [...box.querySelectorAll('a')];
+          const hand = document.createElement('span');
+          hand.className = 'rpg-hand';
+          hand.setAttribute('aria-hidden', 'true');
+          box.appendChild(hand);
+          const point = (a) => {
+            items.forEach((x) => x.classList.toggle('is-pointed', x === a));
+            if (!a || !matchMedia(wide).matches) { hand.style.opacity = '0'; return; }
+            hand.style.opacity = '1';
+            hand.style.transform = `translate(${a.offsetLeft - 40}px, ${a.offsetTop + a.offsetHeight / 2 - 10}px)`;
+          };
+          const home = () => point(box.querySelector(homeSel));
+          const on = (target, type, fn) => target.addEventListener(type, fn, { signal });
+          on(box, 'mouseover', (e) => { const a = e.target.closest('a'); if (a) point(a); });
+          on(box, 'focusin', (e) => point(e.target.closest('a')));
+          on(box, 'mouseleave', () => { if (!box.contains(document.activeElement)) home(); });
+          on(box, 'focusout', () => setTimeout(() => { if (!box.contains(document.activeElement)) home(); }));
+          on(box, 'keydown', (e) => {
+            if (!['ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft'].includes(e.key)) return;
+            const i = items.indexOf(document.activeElement);
+            if (i < 0) return;
+            e.preventDefault();
+            const step = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : -1;
+            items[(i + step + items.length) % items.length].focus();
+          });
+          on(window, 'resize', home);
+          (document.fonts?.ready ?? Promise.resolve()).then(() => { hand.classList.add('no-glide'); home(); requestAnimationFrame(() => hand.classList.remove('no-glide')); });
+          home();
+          return home;
+        };
+        const navHome = nav ? handFor(nav, 'a[aria-current="page"]', '(min-width: 900px)') : () => {};
+
+        // ---------- Once: living background ----------
         // Background: a few ribbons of thin green strands that undulate across the screen, and green motes
         // that drift up and twinkle. Drawn at CSS-pixel resolution and capped at ~30 fps to stay light.
         const cv = document.querySelector('.rpg-fx canvas');
@@ -264,80 +324,78 @@ const isCurrent = (href: string) => {
           }
         }
 
-        // Item menu: pointing at a folder tab opens that file; clicking it goes to the page.
-        const box = document.querySelector('.files');
-        if (box) {
-          document.documentElement.classList.add('js-files');
-          const tabs = [...box.querySelectorAll('.file-tab')];
-          const panels = [...box.querySelectorAll('.file-panel')];
-          const open = (tab) => {
-            if (!tab || tab.classList.contains('is-active')) return;
-            const i = Number(tab.dataset.i);
-            tabs.forEach((t, k) => t.classList.toggle('is-active', k === i));
-            panels.forEach((p, k) => p.classList.toggle('is-active', k === i));
-          };
-          box.querySelector('.file-tabs').addEventListener('mouseover', (e) => open(e.target.closest('.file-tab')));
-          box.querySelector('.file-tabs').addEventListener('focusin', (e) => open(e.target.closest('.file-tab')));
-        }
+        // ---------- Every page ----------
+        let pageEnd;
+        const page = () => {
+          pageEnd?.abort();
+          pageEnd = new AbortController();
+          const signal = pageEnd.signal;
+          root.classList.add('js-nav');
+          setNav(false);
 
-        // One pointing hand per menu.
-        const menus = [
-          { box: document.querySelector('.site-nav'), home: 'a[aria-current="page"]', wide: '(min-width: 900px)' },
-          { box: document.querySelector('.rpg-cmds'), home: 'a', wide: 'all' },
-          { box: document.querySelector('.file-tabs'), home: 'a.is-active', wide: '(min-width: 761px)' },
-        ];
-        for (const m of menus) {
-          if (!m.box) continue;
-          const items = [...m.box.querySelectorAll('a')];
-          const hand = document.createElement('span');
-          hand.className = 'rpg-hand';
-          hand.setAttribute('aria-hidden', 'true');
-          m.box.appendChild(hand);
-          const point = (a) => {
-            items.forEach((x) => x.classList.toggle('is-pointed', x === a));
-            if (!a || !matchMedia(m.wide).matches) { hand.style.opacity = '0'; return; }
-            hand.style.opacity = '1';
-            hand.style.transform = `translate(${a.offsetLeft - 40}px, ${a.offsetTop + a.offsetHeight / 2 - 10}px)`;
-          };
-          const home = () => point(m.home ? m.box.querySelector(m.home) : null);
-          m.box.addEventListener('mouseover', (e) => { const a = e.target.closest('a'); if (a) point(a); });
-          m.box.addEventListener('focusin', (e) => point(e.target.closest('a')));
-          m.box.addEventListener('mouseleave', () => { if (!m.box.contains(document.activeElement)) home(); });
-          m.box.addEventListener('focusout', () => setTimeout(() => { if (!m.box.contains(document.activeElement)) home(); }));
-          m.box.addEventListener('keydown', (e) => {
-            if (!['ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft'].includes(e.key)) return;
-            const i = items.indexOf(document.activeElement);
-            if (i < 0) return;
-            e.preventDefault();
-            const step = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : -1;
-            items[(i + step + items.length) % items.length].focus();
+          // The menu is not redrawn, so mark the current page here; the hand glides to it.
+          const here = location.pathname.replace(/\/$/, '') || '/';
+          nav?.querySelectorAll('a').forEach((a) => {
+            const h = new URL(a.href).pathname.replace(/\/$/, '') || '/';
+            if (h === '/' ? here === '/' : here.startsWith(h)) a.setAttribute('aria-current', 'page');
+            else a.removeAttribute('aria-current');
           });
-          addEventListener('resize', home);
-          (document.fonts?.ready ?? Promise.resolve()).then(() => { hand.classList.add('no-glide'); home(); requestAnimationFrame(() => hand.classList.remove('no-glide')); });
-          home();
-        }
+          navHome();
 
-        if (!calm) {
-          document.querySelector('.site-nav')?.addEventListener('click', (e) => {
-            const a = e.target.closest('a');
-            if (!a || e.ctrlKey || e.metaKey || e.shiftKey || a.hash || a.origin !== location.origin) return;
-            e.preventDefault();
-            document.documentElement.classList.add('rpg-leaving');
-            setTimeout(() => { location.href = a.href; }, 260);
-          });
-          addEventListener('pageshow', () => document.documentElement.classList.remove('rpg-leaving'));
-        }
-
-        if (!('IntersectionObserver' in window) || calm) return;
-        const targets = document.querySelectorAll('main h2, main .files, main .video, main section > p:not(.rpg-message)');
-        targets.forEach((el) => el.classList.add('reveal'));
-        document.documentElement.classList.add('reveal-ready');
-        const io = new IntersectionObserver((entries) => {
-          for (const entry of entries) {
-            if (entry.isIntersecting) { entry.target.classList.add('is-in'); io.unobserve(entry.target); }
+          // Item menu: pointing at an entry opens that file; clicking it goes to the page.
+          const box = document.querySelector('.files');
+          root.classList.toggle('js-files', !!box);
+          if (box) {
+            const tabs = [...box.querySelectorAll('.file-tab')];
+            const panels = [...box.querySelectorAll('.file-panel')];
+            const open = (tab) => {
+              if (!tab || tab.classList.contains('is-active')) return;
+              const i = Number(tab.dataset.i);
+              tabs.forEach((t, k) => t.classList.toggle('is-active', k === i));
+              panels.forEach((p, k) => p.classList.toggle('is-active', k === i));
+            };
+            const list = box.querySelector('.file-tabs');
+            list.addEventListener('mouseover', (e) => open(e.target.closest('.file-tab')));
+            list.addEventListener('focusin', (e) => open(e.target.closest('.file-tab')));
+            handFor(list, 'a.is-active', '(min-width: 761px)', signal);
           }
-        }, { rootMargin: '0px 0px -8% 0px' });
-        targets.forEach((el) => io.observe(el));
+
+          // Images inside a page open enlarged on click.
+          const lb = document.querySelector('.lightbox');
+          if (lb && lb.showModal) {
+            const big = lb.querySelector('img');
+            document.querySelectorAll('article img').forEach((im) => {
+              if (im.closest('a')) return;
+              im.classList.add('zoomable');
+              im.tabIndex = 0;
+              im.setAttribute('role', 'button');
+              im.setAttribute('aria-label', 'Enlarge image: ' + im.alt);
+              const open = () => {
+                // The largest version on offer, not the thumbnail the page picked.
+                big.src = (im.srcset || '').split(',').pop().trim().split(' ')[0] || im.currentSrc || im.src;
+                big.alt = im.alt;
+                lb.showModal();
+              };
+              im.addEventListener('click', open);
+              im.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+            });
+            lb.addEventListener('click', () => lb.close());
+          }
+
+          // Sections come in as they are scrolled to.
+          if (!('IntersectionObserver' in window) || calm) return;
+          const targets = document.querySelectorAll('main h2, main .files, main .video, main section > p:not(.rpg-message)');
+          targets.forEach((el) => el.classList.add('reveal'));
+          root.classList.add('reveal-ready');
+          const io = new IntersectionObserver((entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) { entry.target.classList.add('is-in'); io.unobserve(entry.target); }
+            }
+          }, { rootMargin: '0px 0px -8% 0px' });
+          targets.forEach((el) => io.observe(el));
+          signal.addEventListener('abort', () => io.disconnect());
+        };
+        document.addEventListener('astro:page-load', page);
       })();
     </script>
   </body>

@@ -11,6 +11,9 @@ facts:
   Platforms: "PC and consoles"
   Status: "In development, launching April 2027"
   Tech: "Unreal Engine, C++, Blueprints, Gameplay Ability System, Gameplay Tags, Behavior Trees"
+video: "S8FxDXI6Rb4"
+videoTitle: "Mariachi Legends — Trailer"
+videoNote: "The latest official trailer. It shows the game, not only my part of it."
 ---
 
 ## What I build

@@ -1,24 +1,17 @@
 ---
-// Home: a character-menu hero (figure, name set vertically, one big stat, status text and commands) and the
-// featured work as an item menu: folder tabs on the left, the pointed file open on the right.
+// Home: a character-menu hero (figure, name set vertically, one big stat and the status text) and the
+// featured work as an item menu: a list on the left, the pointed file open on the right with its cover image.
 // Without JS, and on phones, every file shows. The theme and the page script live in layouts/Site.astro.
 import { Image } from 'astro:assets';
 import Site from '../layouts/Site.astro';
 import YouTube from '../components/YouTube.astro';
 import { site } from '../data/site.mjs';
 import { games } from '../data/games.mjs';
+import { mediaFor, slugOf } from '../data/media.mjs';
 import bodyGlow from '../assets/daniel-body-glow.webp'; // cut-out with a soft blue halo, made by Daniel
 
-const files = [
-  {
-    href: '/projects/ils-demo/',
-    title: 'GAS action-combat demo (ILS_Demo)',
-    short: 'GAS combat demo',
-    meta: 'Technical breakdown · UE 5.4 · C++',
-    summary: 'Data-driven ability sets, abilities bound to input by Gameplay Tag, a custom root-motion dash task, combo windows driven by an AnimNotifyState, and ability costs from a Magnitude Calculation.',
-  },
-  ...games.map((g) => ({ ...g, short: g.title.replace(/:.*$/, '') })),
-];
+const files = games.map((g) => ({ ...g, short: g.title.replace(/:.*$/, '') }));
+const covers = files.map((f) => mediaFor(slugOf(f.href)).cover);
 const [firstName, ...restName] = site.name.split(' ');
 const pad = (n: number) => String(n).padStart(2, '0');
 ---
@@ -48,11 +41,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
       I specialize in the Gameplay Ability System (GAS), multiplayer network replication,
       combat and AI mechanics, and performance optimization.
     </p>
-    <nav class="rpg-cmds" aria-label="Commands">
-      <a href="#work">Featured work</a>
-      <a href="/projects/">All projects</a>
-      <a href={`mailto:${site.email}`}>Email me</a>
-    </nav>
   </section>
 
   {site.reelId && (
@@ -76,11 +64,17 @@ const pad = (n: number) => String(n).padStart(2, '0');
       <div class="file-panels">
         {files.map((f, i) => (
           <article class:list={['file-panel', { 'is-active': i === 0 }]} data-i={i}>
-            <span class="file-mark" aria-hidden="true">{pad(i + 1)}</span>
+          <div class="file-text">
             <p class="meta">{f.meta}</p>
             <h3><a href={f.href}>{f.title}</a></h3>
             <p class="file-summary">{f.summary}</p>
             <a class="file-open" href={f.href} aria-hidden="true" tabindex="-1">Open file</a>
+          </div>
+          <a class="file-art" href={f.href} aria-hidden="true" tabindex="-1">
+            {covers[i]
+              ? <Image src={covers[i]} alt="" width={720} />
+              : <span class="shot-empty">Cover image<small>16:9 · pending</small></span>}
+          </a>
           </article>
         ))}
       </div>

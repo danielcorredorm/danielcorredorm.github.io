@@ -13,9 +13,8 @@ facts:
   Links: "<a href=\"https://killerklownsthegame.com/\">Official site</a>"
 video: "iqlVMqvo0hg"
 videoTitle: "Killer Klowns From Outer Space: The Game — Launch Trailer"
+videoNote: "The official launch trailer. It shows the game, not only my part of it."
 ---
-
-*Video: the official launch trailer. It shows the game, not only my part of it.*
 
 ## What I built
 
@@ -43,10 +42,7 @@ Most of the bugs I fixed were replication bugs:
 
 ## Credits
 
-I am credited under **Programmers** in the game's credits.
+I am credited under **Programmers** in the game's credits. Below, a close-up of that section and the full credits screen.
 
 ![Close-up of the Programmers section of the in-game credits, with an arrow pointing to the name Daniel Corredor](../../assets/killer-klowns-credits-programmers.jpg)
-
-The full credits screen:
-
 ![The in-game credits of Killer Klowns From Outer Space: The Game, Programmers section, with an arrow pointing to the name Daniel Corredor](../../assets/killer-klowns-credits.jpg)

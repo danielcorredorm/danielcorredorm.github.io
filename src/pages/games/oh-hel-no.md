@@ -13,9 +13,8 @@ facts:
   Links: "<a href=\"https://store.steampowered.com/app/3225370/Oh_Hel_No/\">Steam</a>"
 video: "vEl80jN1qFw"
 videoTitle: "Oh, Hel No! — October 2024 Gameplay (Open Development)"
+videoNote: "Open-development gameplay from October 2024."
 ---
-
-*Video: open-development gameplay from October 2024.*
 
 ## What I built
 
