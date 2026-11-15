@@ -17,6 +17,8 @@ const gi = games.findIndex((g) => g.href === here);
 const short = (g: { title: string; navLabel?: string }) => g.navLabel ?? g.title;
 const prevGame = gi >= 0 ? games[(gi - 1 + games.length) % games.length] : null;
 const nextGame = gi >= 0 ? games[(gi + 1) % games.length] : null;
+// A project breakdown ends with a way back to the full list of projects.
+const isProjectPage = here.startsWith('/projects/') && here !== '/projects/';
 const facts: Record<string, string> = frontmatter.facts ?? {};
 const isFile = Object.keys(facts).length > 0;
 const media = mediaFor(slugOf(Astro.url.pathname));
@@ -63,6 +65,11 @@ const shots = media.shots.slice(0, SHOTS).map((s) => s.img);
       <nav class="game-step" aria-label="More games">
         <a class="prev" href={prevGame.href} rel="prev"><span>Previous game</span><b>{short(prevGame)}</b></a>
         <a class="next" href={nextGame.href} rel="next"><span>Next game</span><b>{short(nextGame)}</b></a>
+      </nav>
+    )}
+    {isProjectPage && (
+      <nav class="game-step" aria-label="More projects">
+        <a class="prev" href="/projects/"><span>Back to</span><b>All projects</b></a>
       </nav>
     )}
   </article>

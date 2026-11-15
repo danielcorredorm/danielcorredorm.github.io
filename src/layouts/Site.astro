@@ -18,17 +18,13 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 // Link previews (LinkedIn, WhatsApp, X): absolute URLs built from `site` in astro.config.mjs.
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = new URL('/og.png', Astro.site).href;
-// Main menu. Games and Projects carry a submenu that shows only while you are inside that section
+// Main menu. Games carries a submenu that shows only while you are inside that section
 // (the page script below opens and closes it as pages change, since the menu itself is not redrawn).
 const nav = [
   { href: '/', label: 'Home' },
   { href: '/games/', label: 'Games', group: 'games' },
   ...games.map((g) => ({ href: g.href, label: g.navLabel ?? g.title, sub: 'games' })),
-  { href: '/projects/', label: 'Projects', group: 'projects' },
-  { href: '/projects/combat-demo/', label: 'Combat demo', sub: 'projects' },
-  { href: '/projects/#capture-the-flag', label: 'Capture the Flag', sub: 'projects' },
-  { href: '/projects/#gas-multiplayer', label: 'GAS multiplayer', sub: 'projects' },
-  { href: '/projects/#times-curse', label: 'Time’s Curse', sub: 'projects' },
+  { href: '/projects/', label: 'Projects' },
   { href: '/about/', label: 'About' },
 ];
 const trim = (href: string) => href.split('#')[0].replace(/\/$/, '') || '/';
@@ -187,7 +183,8 @@ const currentOf = (href: string, isSub = false) => {
             hand.style.opacity = '1';
             hand.style.transform = `translate(${a.offsetLeft - 40}px, ${a.offsetTop + a.offsetHeight / 2 - 10}px)`;
           };
-          const home = () => point(box.querySelector(homeSel));
+          // homeSel may list fallbacks with "||": the first selector that matches wins.
+          const home = () => point(homeSel.split('||').map((s) => box.querySelector(s.trim())).find(Boolean) ?? null);
           const on = (target, type, fn) => target.addEventListener(type, fn, { signal });
           on(box, 'mouseover', (e) => { const a = e.target.closest('a'); if (a) point(a); });
           on(box, 'focusin', (e) => point(e.target.closest('a')));
@@ -207,7 +204,8 @@ const currentOf = (href: string, isSub = false) => {
           home();
           return home;
         };
-        const navHome = nav ? handFor(nav, 'a[aria-current="page"]', '(min-width: 900px)') : () => {};
+        // The hand rests on this exact page or, on a page the menu does not list (a project breakdown), on its section.
+        const navHome = nav ? handFor(nav, 'a[aria-current="page"] || a[aria-current]', '(min-width: 900px)') : () => {};
 
         // ---------- Once: living background ----------
         // Background: a few ribbons of thin green strands that undulate across the screen, and green motes
