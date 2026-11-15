@@ -3,6 +3,7 @@ export const games = [
   {
     href: '/games/killer-klowns/',
     title: 'Killer Klowns From Outer Space: The Game',
+    navLabel: 'Killer Klowns', // short name for the side menu and the previous / next links
     meta: 'Teravision Games · 2021–2023 · Shipped',
     summary: 'Multiplayer AA, third person. Replicated gameplay systems with GAS, multiplayer replication bugs, gameplay tools.',
   },
@@ -10,7 +11,7 @@ export const games = [
     href: '/games/mariachi-legends/',
     title: 'Mariachi Legends',
     meta: 'Indie Level Studio · 2025–present · Launching April 2027',
-    summary: '2D pixel-art Metroidvania. Tag-driven GAS enemy and boss behaviors with Behavior Trees, interactive objects, console-ready gameplay code.',
+    summary: '2D pixel-art Metroidvania. GAS enemy and boss behaviors with Gameplay Tags and Behavior Trees, interactive objects, console-ready gameplay code.',
   },
   {
     href: '/games/contenders-arena/',

@@ -5,6 +5,7 @@ import '../styles/global.css';
 import '../styles/theme.css';
 import { ClientRouter } from 'astro:transitions';
 import { site } from '../data/site.mjs';
+import { games } from '../data/games.mjs';
 
 interface Props {
   title?: string;
@@ -17,15 +18,27 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 // Link previews (LinkedIn, WhatsApp, X): absolute URLs built from `site` in astro.config.mjs.
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = new URL('/og.png', Astro.site).href;
+// Main menu. Games and Projects carry a submenu that shows only while you are inside that section
+// (the page script below opens and closes it as pages change, since the menu itself is not redrawn).
 const nav = [
   { href: '/', label: 'Home' },
-  { href: '/games/', label: 'Games' },
-  { href: '/projects/', label: 'Projects' },
+  { href: '/games/', label: 'Games', group: 'games' },
+  ...games.map((g) => ({ href: g.href, label: g.navLabel ?? g.title, sub: 'games' })),
+  { href: '/projects/', label: 'Projects', group: 'projects' },
+  { href: '/projects/combat-demo/', label: 'Combat demo', sub: 'projects' },
+  { href: '/projects/#capture-the-flag', label: 'Capture the Flag', sub: 'projects' },
+  { href: '/projects/#gas-multiplayer', label: 'GAS multiplayer', sub: 'projects' },
+  { href: '/projects/#times-curse', label: 'Time’s Curse', sub: 'projects' },
   { href: '/about/', label: 'About' },
 ];
-const isCurrent = (href: string) => {
-  const h = href.replace(/\/$/, '') || '/';
-  return h === '/' ? path === '/' : path.startsWith(h);
+const trim = (href: string) => href.split('#')[0].replace(/\/$/, '') || '/';
+// "page" on the exact page (the hand rests there), "true" on a section that contains it.
+const currentOf = (href: string, isSub = false) => {
+  if (href.includes('#')) return undefined;
+  const h = trim(href);
+  if (h === path) return 'page';
+  if (!isSub && h !== '/' && path.startsWith(h + '/')) return 'true';
+  return undefined;
 };
 ---
 <!doctype html>
@@ -67,8 +80,10 @@ const isCurrent = (href: string) => {
         </button>
         <div class="nav-panel" id="nav-panel">
           <nav class="site-nav" aria-label="Main">
-            {nav.map((item) => (
-              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a>
+            {nav.map((item) => item.sub ? (
+              <a class="sub" href={item.href} data-sub={item.sub} hidden={!path.startsWith('/' + item.sub)} aria-current={currentOf(item.href, true)}>{item.label}</a>
+            ) : (
+              <a href={item.href} aria-current={currentOf(item.href)}>{item.label}</a>
             ))}
           </nav>
           <div class="rpg-contact">
@@ -180,11 +195,12 @@ const isCurrent = (href: string) => {
           on(box, 'focusout', () => setTimeout(() => { if (!box.contains(document.activeElement)) home(); }));
           on(box, 'keydown', (e) => {
             if (!['ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft'].includes(e.key)) return;
-            const i = items.indexOf(document.activeElement);
+            const shown = items.filter((x) => !x.hidden);
+            const i = shown.indexOf(document.activeElement);
             if (i < 0) return;
             e.preventDefault();
             const step = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : -1;
-            items[(i + step + items.length) % items.length].focus();
+            shown[(i + step + shown.length) % shown.length].focus();
           });
           on(window, 'resize', home);
           (document.fonts?.ready ?? Promise.resolve()).then(() => { hand.classList.add('no-glide'); home(); requestAnimationFrame(() => hand.classList.remove('no-glide')); });
@@ -339,11 +355,18 @@ const isCurrent = (href: string) => {
           root.classList.add('js-nav');
           setNav(false);
 
-          // The menu is not redrawn, so mark the current page here; the hand glides to it.
+          // The menu is not redrawn, so mark the current page here and open the submenu of the current section;
+          // the hand glides to the page. "page" = this exact page, "true" = the section that contains it.
           const here = location.pathname.replace(/\/$/, '') || '/';
           nav?.querySelectorAll('a').forEach((a) => {
-            const h = new URL(a.href).pathname.replace(/\/$/, '') || '/';
-            if (h === '/' ? here === '/' : here.startsWith(h)) a.setAttribute('aria-current', 'page');
+            const u = new URL(a.href);
+            const h = u.pathname.replace(/\/$/, '') || '/';
+            const sub = a.dataset.sub;
+            if (sub) a.hidden = !here.startsWith('/' + sub);
+            let cur = null;
+            if (!u.hash && h === here) cur = 'page';
+            else if (!sub && h !== '/' && here.startsWith(h + '/')) cur = 'true';
+            if (cur) a.setAttribute('aria-current', cur);
             else a.removeAttribute('aria-current');
           });
           navHome();

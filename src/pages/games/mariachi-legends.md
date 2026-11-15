@@ -21,7 +21,7 @@ The game is still in development and under NDA, so I can't share mechanics, cont
 
 ## What I build
 
-- **Enemy and boss behavior system.** A modular system on the Gameplay Ability System: combat abilities and behaviors are granted dynamically through Gameplay Tags and orchestrated together with Behavior Trees.
+- **Enemy and boss behavior system.** A modular system built with the Gameplay Ability System, Gameplay Tags and Behavior Trees.
 - **Interactive objects and core single-player mechanics** in C++ and Blueprints.
 - **Console-ready code.** Gameplay code written to the project's performance guidelines for consoles.
 - **Code health.** Bug fixing across all gameplay systems and technical code reviews to keep the codebase maintainable long term.
