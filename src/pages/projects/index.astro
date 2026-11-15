@@ -2,7 +2,7 @@
 import Base from '../../layouts/Site.astro';
 import YouTube from '../../components/YouTube.astro';
 ---
-<Base title="Projects" description="Unreal Engine demos and code samples by Daniel Corredor: GAS action combat, multiplayer capture the flag, and a GAS multiplayer course project.">
+<Base title="Projects" description="Unreal Engine demos and code samples by Daniel Corredor: GAS action combat, multiplayer capture the flag, and two Unreal Engine course projects.">
   <h1>Projects</h1>
   <p class="lead">Code I can show in full. Commercial work is on the <a href="/games/">Games</a> page.</p>
 
@@ -37,11 +37,32 @@ import YouTube from '../../components/YouTube.astro';
       <div>
         <p><span class="badge">UE 4.25</span> <span class="badge">C++</span> <span class="badge">Course project</span></p>
         <p>
-          Project from the course <em>Multiplayer Video Game Development in Unreal Engine</em> (Arkde, 2020–2021):
+          Project from the course <em>Multiplayer Video Game Development in Unreal Engine</em> (Arkde, 2021):
           a multiplayer game using the Gameplay Ability System, built while following the course.
         </p>
       </div>
       <YouTube id="8h8SWPf-Ca4" title="Unreal Engine 4 Multiplayer Demo" />
+    </div>
+  </section>
+  <section class="proj">
+    <div class="proj-head">
+      <h2>Time’s Curse — course project</h2>
+      <a class="src-btn" href="https://github.com/danielcorredorm/UnrealEngine-Times_Curse">Source on GitHub</a>
+    </div>
+    <div class="proj-body">
+      <div>
+        <p><span class="badge">UE 4.24</span> <span class="badge">C++</span> <span class="badge">Course project</span></p>
+        <p>
+          My own single-player game, built during the course <em>Video Game Development in Unreal Engine</em> (Arkde, 2020).
+          Each class taught a technique, and I used it my own way in this game.
+        </p>
+        <p>
+          It has melee combos driven by Anim Notifies, ranged weapons (rifle, grenade launcher, pad launcher),
+          enemies with an AI controller, patrol paths and a bot spawner, doors and keys, mines and launch pads,
+          a save system, and a HUD with objectives, health, an enemy counter and an ultimate.
+        </p>
+      </div>
+      <YouTube id="XsVKexYAbGo" title="Time’s Curse — Unreal Engine 4 course project" />
     </div>
   </section>
 </Base>
