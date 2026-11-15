@@ -11,16 +11,19 @@ facts:
   Platforms: "PC and consoles"
   Status: "In development, launching April 2027"
   Tech: "Unreal Engine, C++, Blueprints, Gameplay Ability System, Gameplay Tags, Behavior Trees"
+  Links: "<a href=\"https://store.steampowered.com/app/2376260/Mariachi_Legends/\">Steam</a> · <a href=\"https://www.kickstarter.com/projects/halberdstudios/mariachi-legends-a-combat-oriented-metroidvania\">Kickstarter</a>"
 video: "S8FxDXI6Rb4"
 videoTitle: "Mariachi Legends — Trailer"
 videoNote: "The latest official trailer. It shows the game, not only my part of it."
 ---
 
+The game is still in development and under NDA, so I can't share mechanics, content or technical details beyond what is public on Steam and Kickstarter.
+
 ## What I build
 
 - **Enemy and boss behavior system.** A modular system on the Gameplay Ability System: combat abilities and behaviors are granted dynamically through Gameplay Tags and orchestrated together with Behavior Trees.
-- **Interactive objects and core single-player mechanics** in C++ and Blueprints, on a tag-driven GAS architecture that assigns logic and behaviors dynamically, without AI controllers.
-- **Performance.** CPU/GPU profiling and optimization on target hardware, finding and fixing critical frame hitches and memory issues.
+- **Interactive objects and core single-player mechanics** in C++ and Blueprints.
+- **Console-ready code.** Gameplay code written to the project's performance guidelines for consoles.
 - **Code health.** Bug fixing across all gameplay systems and technical code reviews to keep the codebase maintainable long term.
 - **Workflow.** Faster feature iteration and bug fixing with AI-assisted coding (Claude) and Spec-Driven Development, with a manual review of every change for architecture and quality.
 

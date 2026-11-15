@@ -1,7 +1,7 @@
 ---
 layout: ../../layouts/Markdown.astro
 title: "Oh Hel No!"
-description: "Daniel Corredor's work as a gameplay engineer on Oh Hel No! (GAMECAN EU), a multiplayer resource management game: enemy AI and NPC navigation."
+description: "Daniel Corredor's work as a gameplay engineer on Oh Hel No! (GAMECAN EU), a multiplayer resource management game: enemy and boss AI, replicated hordes and NPC navigation."
 tagline: "Multiplayer resource management · GAMECAN EU"
 facts:
   Role: "Mid-Level Gameplay Engineer"
@@ -9,7 +9,7 @@ facts:
   Dates: "May 2023 – Dec 2024 (with Contenders Arena)"
   Game: "3D third-person multiplayer resource management"
   Platform: "PC (Steam Early Access)"
-  Tech: "Unreal Engine, C++, Blueprints, Behavior Trees, Blackboards"
+  Tech: "Unreal Engine 4, C++, Blueprints, Behavior Trees, Blackboards, NavMesh"
   Links: "<a href=\"https://store.steampowered.com/app/3225370/Oh_Hel_No/\">Steam</a>"
 video: "vEl80jN1qFw"
 videoTitle: "Oh, Hel No! — October 2024 Gameplay (Open Development)"
@@ -18,9 +18,23 @@ videoNote: "Open-development gameplay from October 2024."
 
 ## What I built
 
-- Designed and implemented the enemy AI system and its behavior logic.
-- Base NPC navigation, including patrol points and obstacle avoidance, with Behavior Trees and Blackboards.
+I built the AI for the game's enemies: the Hel enemies, the boss and the animals on the crafting map. All of it uses Behavior Trees and Blackboards, with NavMesh for navigation.
 
+### Hel enemies and boss
+
+After crafting tasks on the main map, players can enter **Hel**, a level where enemies come in hordes. There are four enemy types, each with melee or ranged attacks, and I built the behavior of each one. All of them chase the match host and attack.
+
+After a set time a boss appears. I also built the boss: it has several attacks and goes after the host too. If the host dies, everyone returns to the crafting level to try again. When the boss dies, Hel resets and enemies spawn again until the next boss. The goal is to survive in Hel as long as possible.
+
+The horde spawning itself was built by someone else.
+
+### Crafting-map animals
+
+Chickens and pigs walk between patrol points on the crafting map. If a player attacks them, they turn aggressive and attack players.
+
+### Multiplayer
+
+Enemies and hordes spawn on the server, with RPCs and replication so every player sees the same state. For example, the kill counter updates for everyone, and everyone sees the other players' health, especially the host's.
 
 ## Project status
 

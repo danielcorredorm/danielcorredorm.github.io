@@ -22,7 +22,7 @@ My work on the team was broad: I worked across many character abilities and shar
 
 - Co-developed replicated multiplayer gameplay systems and core mechanics in C++ and Blueprints, using the Gameplay Ability System (GAS) for character abilities.
 - Prototyped and built gameplay tools, with maintainable and optimized code, so the design and art teams could iterate fast.
-- Profiled game performance and fixed complex multiplayer replication bugs, keeping network synchronization and frame rates stable across target platforms.
+- Fixed complex multiplayer replication bugs, keeping network synchronization stable across target platforms.
 - Worked with Art, Audio and QA to deliver complete features, and documented every technical implementation in Confluence.
 
 ### An ability I built: Shorty's Pizza Box

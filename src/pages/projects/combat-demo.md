@@ -17,6 +17,8 @@ videoTitle: "GAS action-combat demo: gameplay video"
 
 A player character fights AI enemies with a melee combo, a dash, jump and double jump. Everything the character can do is granted by the **Gameplay Ability System** from data, and every input reaches its ability through a **Gameplay Tag**, so adding a new ability is data work, not new input code.
 
+**Controls:** left mouse button attacks (base, combo and final attack all use it), Left Shift dashes, Space jumps and double jumps, Left Ctrl crouches, WASD and the mouse move and look. The demo opens on the `L_DemoGame` map.
+
 ## How input reaches an ability
 
 ```text
@@ -75,8 +77,18 @@ Tags used from C++ are declared as **native tags** with `UE_DECLARE_GAMEPLAY_TAG
 [`UDPGAAttack`](https://github.com/danielcorredorm/Combat_Demo/blob/main/Source/DemoProject/Abilities/Attack/DPGAAttack.cpp) plays its montage and waits on those tags with `WaitGameplayTagAdded` / `WaitGameplayTagRemoved`:
 
 - `ANS.HandleCollision` turns the weapon's hit box on and off.
-- `ANS.HandleCombo` shows the combo prompt and raises the weapon's damage multiplier for the next hit.
-- [`UDPGAFinalAttack`](https://github.com/danielcorredorm/Combat_Demo/blob/main/Source/DemoProject/Abilities/Attack/DPGAFinalAttack.cpp) listens to `ANS.FinalAttack` instead: a sphere overlap launches nearby characters away and applies damage through a gameplay effect with a `SetByCaller.Damage` magnitude.
+- `ANS.HandleCombo` shows the combo prompt and, while the window is open, sets the weapon's damage multiplier to the running ability's value (×1 on the base attack, ×2 on the combo attack). When the window closes it goes back to ×1.
+- [`UDPGAFinalAttack`](https://github.com/danielcorredorm/Combat_Demo/blob/main/Source/DemoProject/Abilities/Attack/DPGAFinalAttack.cpp) listens to `ANS.FinalAttack` instead: a sphere overlap (radius 1000 units) launches nearby characters away and applies 50 damage through a gameplay effect with a `SetByCaller.Damage` magnitude.
+
+### How the combo chains
+
+All three attacks are on the same button. Each attack is its own ability, and which one fires is decided only by tags:
+
+- **`GA_Attack`** fires on a normal press (only death blocks it). While it plays, the character has `Character.State.Attack.Base`.
+- **`GA_AttackCombo`** has two Activation Required Tags: `Character.State.Attack.Base` and `ANS.HandleCombo`. While it plays, the character has `Character.State.Attack.Combo`.
+- **`GA_FinalAttack`** requires `Character.State.Attack.Combo`. While it plays, the character has `Character.State.Attack.Final`.
+
+So pressing attack again while the base attack's combo window is open starts the combo attack; pressing during the combo attack starts the final attack. Outside the window the combo ability is missing a required tag and simply does not activate. Each ability also blocks the others with **Block Abilities with Tag**, so a click cannot restart the attack that is already playing.
 
 
 ## 6. Ability cost from a Magnitude Calculation
@@ -91,13 +103,38 @@ if (const auto GameplayAbility = Cast<UDPGameplayAbility>(Spec.GetContext().GetA
 return 0.0f;
 ```
 
-One shared cost gameplay effect serves every ability; tuning a cost is a number on the ability, not a new effect asset. The [attribute set](https://github.com/danielcorredorm/Combat_Demo/blob/main/Source/DemoProject/Abilities/DPAttributeSet.cpp) clamps Health and Stamina between 0 and their max in `PreAttributeChange`.
+One shared cost gameplay effect (`GE_StaminaCost`) serves every ability; tuning a cost is a number on the ability, not a new effect asset. The costs in the demo:
+
+| Ability | Stamina cost |
+|---|---|
+| Base attack | 5 |
+| Combo attack | 10 |
+| Final attack | 20 |
+| Dash | 10 |
+| Double jump | 10 |
+
+Health and Stamina start at 100, initialized from a data table. The [attribute set](https://github.com/danielcorredorm/Combat_Demo/blob/main/Source/DemoProject/Abilities/DPAttributeSet.cpp) clamps both between 0 and their max in `PreAttributeChange`. Stamina comes back through `GE_StaminaRegen`, an infinite periodic effect that the ability set grants on spawn: +0.1 every 0.1 s, about 1 point per second, always on. The slow rate is intentional.
 
 
 ## Also in the project
 
 - **Activation policies** on the base ability (on input, while input is active, on spawn, passive), with spawn activation that respects the ability's net execution policy.
 - **Enemy AI** with Behavior Tree tasks: find a random location and attack the target, where the attack task activates a GAS ability on the enemy.
-- **Death and respawn** driven by attribute change delegates and a blocking gameplay effect with a `SetByCaller.Respawn` magnitude.
+- **Death and revive** driven by attribute change delegates and a blocking gameplay effect with a `SetByCaller.Respawn` magnitude.
 - **UMG** character overlay, enemy health bar and combo prompt.
+
+## What I'd change today
+
+I built this demo against a delivery deadline, so there is plenty to improve. For example:
+
+- **Fix a death bug:** once the player dies, enemies can keep hitting them and the player "dies" again several times.
+- **Add a real respawn:** today the player only revives. I would add a proper respawn after death.
+- **Give enemies different behaviors.**
+
+## Assets
+
+- Character: Unreal Engine mannequin (Manny / Quinn).
+- Attack and sword-idle animations: Mixamo. The dash animation is third-party; its source was not recorded.
+- Sword: [Sword of Miracle Free](https://sketchfab.com/3d-models/sword-of-miracle-free-a163029fb3d74626bbb1711bd8840c46) by Art_workshop, Sketchfab, CC Attribution.
+- Level: Unreal Engine prototype grid materials and meshes.
 
