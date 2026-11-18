@@ -1,15 +1,20 @@
 ---
 import Base from '../../layouts/Site.astro';
 import YouTube from '../../components/YouTube.astro';
+import { Image } from 'astro:assets';
+import { mediaFor } from '../../data/media.mjs';
+
+const combatCover = mediaFor('combat-demo').cover;
 ---
 <Base title="Projects" description="Unreal Engine demos and code samples by Daniel Corredor: GAS action combat, multiplayer capture the flag, and two Unreal Engine course projects.">
   <h1>Projects</h1>
   <p class="lead">Code I can show in full. Commercial work is on the <a href="/games/">Games</a> page.</p>
 
   <div class="cards">
-    <a class="card featured" href="/projects/combat-demo/">
+    <a class={`card featured${combatCover ? " has-cover" : ""}`} href="/projects/combat-demo/">
+      {combatCover && <Image class="card-cover" src={combatCover} alt="" widths={[480, 960]} sizes="(max-width: 760px) 100vw, 480px" />}
       <div class="meta">Featured · UE 5.4 · C++ · GAS · Technical breakdown</div>
-      <h3>GAS action-combat demo</h3>
+      <h2>GAS action-combat demo</h2>
       <p>My technical test for Indie Level Studio. Data-driven ability sets, abilities bound to input by Gameplay Tag, native tags, a custom root-motion dash task, combo windows from an AnimNotifyState and ability costs from a Magnitude Calculation. Read the breakdown →</p>
     </a>
   </div>
@@ -22,15 +27,28 @@ import YouTube from '../../components/YouTube.astro';
     <div class="proj-body">
       <div>
         <p><span class="badge">UE 4.27</span> <span class="badge">C++</span> <span class="badge">Multiplayer</span></p>
-        <p>A multiplayer capture-the-flag demo built in C++ for a technical test in 2022.</p>
+        <p>
+          A first-person, two-team capture-the-flag game built in C++ for a technical test in 2022. One player hosts
+          (listen server), the others find the match in a server list, and everyone waits in a lobby until it is full.
+        </p>
+        <ul>
+          <li><strong>Sessions and match flow:</strong> Online Subsystem sessions over Steam (create, search, join), then seamless <code>ServerTravel</code> from main menu to lobby to the match.</li>
+          <li><strong>Teams:</strong> the server balances players into Red and Blue as they log in; the team is replicated on the player state and sets each character's color.</li>
+          <li><strong>The flag:</strong> a replicated actor. Picking it up goes through a server RPC; while carried it is attached to a socket, and its physics and collision switch in <code>OnRep</code>. It drops when the carrier dies and resets after a capture.</li>
+          <li><strong>Score, timer and result:</strong> replicated on the game state, with <code>OnRep</code> handlers that update every player's HUD.</li>
+          <li><strong>Combat:</strong> projectiles spawned on the server, replicated health and elimination, respawn at a random player start, and aim rotation kept in sync with server and multicast RPCs.</li>
+        </ul>
       </div>
       <YouTube id="CHmQ_FNKYJk" title="Unreal Engine 4.27 Multiplayer Capture The Flag Demo" />
     </div>
   </section>
 
+  <h2 class="proj-group" id="earlier">Earlier learning projects (2020–2021)</h2>
+  <p class="proj-group-note">Built while I learned Unreal Engine and C++ in two Arkde courses, before I started working in the industry.</p>
+
   <section class="proj" id="gas-multiplayer">
     <div class="proj-head">
-      <h2>GAS multiplayer — course project</h2>
+      <h3>GAS multiplayer</h3>
       <a class="src-btn" href="https://github.com/danielcorredorm/UnrealEngine-GAS_Multiplayer">Source on GitHub</a>
     </div>
     <div class="proj-body">
@@ -46,7 +64,7 @@ import YouTube from '../../components/YouTube.astro';
   </section>
   <section class="proj" id="times-curse">
     <div class="proj-head">
-      <h2>Time’s Curse — course project</h2>
+      <h3>Time’s Curse</h3>
       <a class="src-btn" href="https://github.com/danielcorredorm/UnrealEngine-Times_Curse">Source on GitHub</a>
     </div>
     <div class="proj-body">

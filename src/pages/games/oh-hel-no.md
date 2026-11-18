@@ -1,16 +1,22 @@
 ---
 layout: ../../layouts/Markdown.astro
-title: "Oh Hel No!"
-description: "Daniel Corredor's work as a gameplay engineer on Oh Hel No! (GAMECAN EU), a multiplayer resource management game: enemy and boss AI, replicated hordes and NPC navigation."
+title: "Oh, Hel No!"
+description: "Gameplay work on Oh, Hel No! (GAMECAN EU), a multiplayer resource management game: enemy and boss AI, replicated hordes and NPC navigation."
 tagline: "Multiplayer resource management · GAMECAN EU"
 facts:
-  Role: "Mid-Level Gameplay Engineer"
+  Role: "Gameplay Engineer"
   Studio: "GAMECAN EU (Pärnu, Estonia)"
-  Dates: "May 2023 – Dec 2024 (with Contenders Arena)"
+  Dates: "May 2023 – Dec 2024 (with Contenders: Arena)"
   Game: "3D third-person multiplayer resource management"
   Platform: "PC (Steam Early Access)"
   Tech: "Unreal Engine 4, C++, Blueprints, Behavior Trees, Blackboards, NavMesh"
   Links: "<a href=\"https://store.steampowered.com/app/3225370/Oh_Hel_No/\">Steam</a>"
+# Gallery alt texts, in the order of 1.jpg to 4.jpg
+shotAlts:
+  - "A horned purple creature with a pitchfork next to a chicken on the green crafting map"
+  - "Wave 3 in Hel: the player among enemies, 55 kills remaining"
+  - "The crafting table menu showing the Stone Grinder recipe"
+  - "Enemies close in on the player in Hel, 20 kills remaining"
 video: "vEl80jN1qFw"
 videoTitle: "Oh, Hel No! — October 2024 Gameplay (Open Development)"
 videoNote: "Open-development gameplay from October 2024."
@@ -26,7 +32,7 @@ After crafting tasks on the main map, players can enter **Hel**, a level where e
 
 After a set time a boss appears. I also built the boss: it has several attacks and goes after the host too. If the host dies, everyone returns to the crafting level to try again. When the boss dies, Hel resets and enemies spawn again until the next boss. The goal is to survive in Hel as long as possible.
 
-The horde spawning itself was built by someone else.
+A teammate built the horde spawner; I built the enemies it spawns.
 
 ### Crafting-map animals
 

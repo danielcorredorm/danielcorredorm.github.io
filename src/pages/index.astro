@@ -5,17 +5,38 @@
 import { Image } from 'astro:assets';
 import Site from '../layouts/Site.astro';
 import YouTube from '../components/YouTube.astro';
+import ContactLinks from '../components/ContactLinks.astro';
 import { site } from '../data/site.mjs';
 import { games } from '../data/games.mjs';
 import { mediaFor, slugOf } from '../data/media.mjs';
 import bodyGlow from '../assets/daniel-body-glow.webp'; // cut-out with a soft blue halo, made by Daniel
 
-const files = games.map((g) => ({ ...g, short: g.title.replace(/:.*$/, '') }));
+// The fifth file is the code sample. It lives in Projects, so it is added here and not in games.mjs
+// (that list also feeds the Games page, the side menu and the previous / next links).
+const codeSample = {
+  href: '/projects/combat-demo/',
+  title: 'GAS action-combat demo',
+  meta: 'Code sample · UE 5.4 · C++ · Technical breakdown',
+  summary: 'My technical test for Indie Level Studio. Data-driven ability sets, abilities bound to input by Gameplay Tag, a custom root-motion dash task and combo windows from an AnimNotifyState.',
+};
+const files = [...games, codeSample].map((g) => ({ ...g, short: g.title.replace(/:.*$/, '') }));
 const covers = files.map((f) => mediaFor(slugOf(f.href)).cover);
 const [firstName, ...restName] = site.name.split(' ');
 const pad = (n: number) => String(n).padStart(2, '0');
+// Structured data for search engines: who this site is about. Built only from site.mjs.
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  jobTitle: site.headline.replace(/ · .*$/, ''),
+  url: Astro.site?.href,
+  address: { '@type': 'PostalAddress', addressLocality: 'Bogotá', addressCountry: 'CO' },
+  knowsAbout: ['Unreal Engine', 'C++', 'Gameplay Ability System', 'Multiplayer replication'],
+  sameAs: Object.values(site.links),
+};
 ---
 <Site>
+  <script type="application/ld+json" set:html={JSON.stringify(person)} />
   <section class="hero rpg-battle" aria-labelledby="char-name">
     <!-- Character card, as in a party menu: the figure, the name running down its side, and one big stat at its feet. -->
     <div class="char">
@@ -30,18 +51,22 @@ const pad = (n: number) => String(n).padStart(2, '0');
       <p class="tagline">{site.headline}</p>
       <dl class="rpg-stats">
         <div><dt>Engine</dt><dd>Unreal Engine 4 / 5</dd></div>
-        <div><dt>Languages</dt><dd>C++ · Blueprint</dd></div>
+        <div><dt>Code</dt><dd>C++ · Blueprints</dd></div>
+        <div><dt>Focus</dt><dd>GAS · Multiplayer · Enemy AI</dd></div>
         <div><dt>Shipped</dt><dd>Multiplayer AA title</dd></div>
       </dl>
       <div class="rpg-atb" aria-hidden="true"><span>Ready</span><i></i></div>
     </div>
     <p class="lead rpg-message">
-      5+ years building C++ and Blueprint gameplay systems in Unreal Engine 4 and 5.
-      Shipped a multiplayer AA title, <a href="/games/killer-klowns/">Killer Klowns From Outer Space: The Game</a>.
-      I specialize in the Gameplay Ability System (GAS), multiplayer network replication,
-      combat and AI mechanics, and clean, maintainable gameplay code.
+      I build gameplay systems for Unreal Engine games: abilities on the Gameplay Ability System,
+      replicated multiplayer gameplay, and enemy and boss AI.
+      I shipped <a href="/games/killer-klowns/">Killer Klowns From Outer Space: The Game</a> and I'm now
+      a senior engineer on <a href="/games/mariachi-legends/">Mariachi Legends</a>.
+      Based in Bogotá (UTC-5), open to remote roles and relocation.
     </p>
   </section>
+  <!-- Phones and tablets: the side menu (and its contact block) is folded away, so the links sit right under the hero. -->
+  <nav class="contact-quick" aria-label="Contact"><ContactLinks /></nav>
 
   {site.reelId && (
     <section aria-labelledby="reel">
@@ -79,6 +104,5 @@ const pad = (n: number) => String(n).padStart(2, '0');
         ))}
       </div>
     </div>
-    <p class="files-more"><a href="/projects/">All projects →</a></p>
   </section>
 </Site>

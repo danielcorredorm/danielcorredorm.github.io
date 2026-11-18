@@ -15,13 +15,13 @@ export const games = [
   },
   {
     href: '/games/contenders-arena/',
-    title: 'Contenders Arena',
+    title: 'Contenders: Arena',
     meta: 'GAMECAN EU · 2023–2024 · Steam Early Access',
     summary: 'Third-person multiplayer shooter. GAS abilities, including Magnetic Hand, with client prediction and server-side replication.',
   },
   {
     href: '/games/oh-hel-no/',
-    title: 'Oh Hel No!',
+    title: 'Oh, Hel No!',
     meta: 'GAMECAN EU · 2023–2024 · Steam Early Access',
     summary: 'Multiplayer resource management game. AI for the Hel enemies, the boss and the crafting-map animals, with Behavior Trees and NavMesh.',
   },

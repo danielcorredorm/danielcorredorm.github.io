@@ -11,13 +11,13 @@ facts:
   Platforms: "PC and consoles"
   Status: "In development, launching April 2027"
   Tech: "Unreal Engine, C++, Blueprints, Gameplay Ability System, Gameplay Tags, Behavior Trees"
-  Links: "<a href=\"https://store.steampowered.com/app/2376260/Mariachi_Legends/\">Steam</a> · <a href=\"https://www.kickstarter.com/projects/halberdstudios/mariachi-legends-a-combat-oriented-metroidvania\">Kickstarter</a>"
+  Links: "<a href=\"https://store.steampowered.com/app/2376260/Mariachi_Legends/\">Steam</a>"
 video: "S8FxDXI6Rb4"
 videoTitle: "Mariachi Legends — Trailer"
 videoNote: "The latest official trailer. It shows the game, not only my part of it."
 ---
 
-The game is still in development and under NDA, so I can't share mechanics, content or technical details beyond what is public on Steam and Kickstarter.
+The game is still in development and under NDA, so I can't share mechanics, content or technical details beyond what is public on Steam.
 
 ## What I build
 

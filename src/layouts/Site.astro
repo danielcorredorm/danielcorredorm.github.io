@@ -1,23 +1,33 @@
 ---
 // Site layout: the RPG menu theme. Side menu with the contact block at its foot (a fold-out menu on phones),
 // living background, and the page script that drives them.
+import '../styles/fonts.css';
 import '../styles/global.css';
 import '../styles/theme.css';
 import { ClientRouter } from 'astro:transitions';
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import { site } from '../data/site.mjs';
 import { games } from '../data/games.mjs';
+import ContactLinks from '../components/ContactLinks.astro';
 
 interface Props {
   title?: string;
   description?: string;
+  // Picture for link previews. Game and project pages pass their cover; the rest use /og.jpg.
+  image?: ImageMetadata;
 }
 
-const { title, description = site.description } = Astro.props;
+const { title, description = site.description, image } = Astro.props;
 const fullTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.headline}`;
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 // Link previews (LinkedIn, WhatsApp, X): absolute URLs built from `site` in astro.config.mjs.
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const ogImage = new URL('/og.png', Astro.site).href;
+// A cover is cut to 1200 × 630, the size LinkedIn and WhatsApp expect, and saved as a light JPG.
+const ogImage = image
+  ? new URL((await getImage({ src: image, width: 1200, height: 630, fit: 'cover', format: 'jpg', quality: 80 })).src, Astro.site).href
+  : new URL('/og.jpg', Astro.site).href;
+const ogAlt = image && title ? `${title} — ${site.name}` : `${site.name} — ${site.headline}`;
 // Main menu. Games carries a submenu that shows only while you are inside that section
 // (the page script below opens and closes it as pages change, since the menu itself is not redrawn).
 const nav = [
@@ -52,18 +62,24 @@ const currentOf = (href: string, isSub = false) => {
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={`${site.name} — ${site.headline}`} />
+    <meta property="og:image:alt" content={ogAlt} />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600&display=swap" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Colour of the browser bar on phones: the page background. -->
+    <meta name="theme-color" content="#050b1c" />
+    <!-- Fonts are self-hosted (src/styles/fonts.css); preload the latin files the first screen uses -->
+    <link rel="preload" href="/fonts/oxanium-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/hanken-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
     <script is:inline>document.documentElement.classList.add('js-nav');</script>
     <!-- Pages swap in place, so the menu and the background keep running between them. -->
     <ClientRouter />
   </head>
   <body>
+    <!-- Keyboard and screen-reader users jump past the menu. Hidden until it gets focus. -->
+    <a class="skip-link" href="#main">Skip to content</a>
     <!-- Living background: a slow drifting glow, faint diagonal lines, fine light strands and motes drawn on a canvas,
          and a sheen that crosses the screen every 20 seconds. Decorative; it keeps running while pages change.
          With reduced motion the canvas draws one still frame and nothing else moves. -->
@@ -83,57 +99,44 @@ const currentOf = (href: string, isSub = false) => {
             ))}
           </nav>
           <div class="rpg-contact">
-            <h2>Contact</h2>
+            <p class="rpg-contact-title">Contact</p>
             <p class="contact-loc">Based in {site.location}. Open to remote roles and relocation.</p>
-            <ul class="contact-list">
-              <li>
-                <a href={`mailto:${site.email}`} title={site.email}>
-                  <span class="contact-ico" aria-hidden="true"><svg viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.5 3h13a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5Zm.9 1.2L8 8.6l5.6-4.4H2.4ZM14 5.2 8.3 9.7a.5.5 0 0 1-.6 0L2 5.2v6.6h12V5.2Z" /></svg></span>
-                  <span class="contact-txt"><b>Email</b></span>
-                </a>
-              </li>
-              <li>
-                <a href={site.links.linkedin}>
-                  <span class="contact-ico" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z" /></svg></span>
-                  <span class="contact-txt"><b>LinkedIn</b></span>
-                </a>
-              </li>
-              <li>
-                <a href={site.links.github}>
-                  <span class="contact-ico" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" /></svg></span>
-                  <span class="contact-txt"><b>GitHub</b></span>
-                </a>
-              </li>
-              <li>
-                <a href={site.links.itch}>
-                  <!-- Simplified storefront drawn for this mockup, standing in for the itch.io logo. -->
-                  <span class="contact-ico" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M2 2h12l1.2 3.2c0 1-.8 1.8-1.8 1.8-.9 0-1.6-.6-1.8-1.4C11.4 6.4 10.7 7 9.8 7S8.2 6.4 8 5.6C7.8 6.4 7.1 7 6.2 7s-1.6-.6-1.8-1.4C4.2 6.4 3.5 7 2.6 7 1.6 7 .8 6.2.8 5.2L2 2Zm0 6.1c.2 0 .4.1.6.1.7 0 1.3-.2 1.8-.6.5.4 1.1.6 1.8.6s1.3-.2 1.8-.6c.5.4 1.1.6 1.8.6s1.3-.2 1.8-.6c.5.4 1.1.6 1.8.6.2 0 .4 0 .6-.1V14H10v-3.5H6V14H2V8.1Z" /></svg></span>
-                  <span class="contact-txt"><b>itch.io</b></span>
-                </a>
-              </li>
-              <li>
-                <a href="/Daniel-Corredor-CV.pdf" download>
-                  <span class="contact-ico" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M7.25 1h1.5v7.2l2.4-2.4 1.06 1.06L8 11.06 3.79 6.86l1.06-1.06 2.4 2.4V1ZM2 12.5h1.5V14h9v-1.5H14V15.5H2V12.5Z" /></svg></span>
-                  <span class="contact-txt"><b>CV (PDF)</b></span>
-                </a>
-              </li>
-            </ul>
+            <ContactLinks />
           </div>
         </div>
+        <!-- Below 1180px the sections are also a row of tabs under the name, so moving between pages needs no menu. -->
+        <nav class="tab-nav" aria-label="Sections">
+          {nav.filter((item) => !item.sub).map((item) => (
+            <a href={item.href} aria-current={currentOf(item.href)}>{item.label}</a>
+          ))}
+        </nav>
       </div>
     </header>
-    <main>
+    <main id="main" tabindex="-1">
       <div class="wrap">
         <slot />
       </div>
     </main>
     <footer class="site-footer">
       <div class="wrap">
+        <!-- Below 1180px the contact block is folded inside the Menu button, so the links are repeated here.
+             Home already shows them under the intro, so its footer leaves them out. -->
+        {path !== '/' && <nav class="contact-quick" aria-label="Contact"><ContactLinks /></nav>}
         <span>{site.name} · {site.headline}</span>
       </div>
     </footer>
     <!-- Enlarged image, opened by the page script when an image in a page is clicked. -->
-    <dialog class="lightbox" aria-label="Enlarged image"><img alt="" /><button type="button" class="lightbox-close" aria-label="Close">Close</button></dialog>
+    <dialog class="lightbox" aria-label="Enlarged image">
+      <div class="lightbox-stage">
+        <img alt="" />
+        <button type="button" class="lightbox-nav prev" aria-label="Previous image">◀</button>
+        <button type="button" class="lightbox-nav next" aria-label="Next image">▶</button>
+      </div>
+      <div class="lightbox-bar">
+        <span class="lightbox-count" aria-live="polite"></span>
+        <button type="button" class="lightbox-close" aria-label="Close">Close</button>
+      </div>
+    </dialog>
     <script is:inline>
       // The menu and the living background stay in place while pages change (see ClientRouter and transition:persist
       // above), so their setup runs once. What belongs to a page is set up again on every astro:page-load.
@@ -205,11 +208,11 @@ const currentOf = (href: string, isSub = false) => {
           return home;
         };
         // The hand rests on this exact page or, on a page the menu does not list (a project breakdown), on its section.
-        const navHome = nav ? handFor(nav, 'a[aria-current="page"] || a[aria-current]', '(min-width: 900px)') : () => {};
+        const navHome = nav ? handFor(nav, 'a[aria-current="page"] || a[aria-current]', '(min-width: 1180px)') : () => {};
 
         // ---------- Once: living background ----------
         // Background: a few ribbons of thin green strands that undulate across the screen, and green motes
-        // that drift up and twinkle. Drawn at CSS-pixel resolution and capped at ~30 fps to stay light.
+        // that drift up and twinkle. Drawn at CSS-pixel resolution and paced at ~24 fps to stay light.
         const cv = document.querySelector('.rpg-fx canvas');
         const cx = cv?.getContext('2d');
         if (cx) {
@@ -328,20 +331,31 @@ const currentOf = (href: string, isSub = false) => {
             cx.globalCompositeOperation = 'source-over';
           };
           size();
+          // Runs at ~24 fps (frames are paced on a schedule, so 60 and 120 Hz screens both average 24).
+          // It stops while the tab is hidden and resumes where it left off, and it follows the reduced-motion
+          // setting live: turned on, the canvas holds one still frame; turned off, the animation starts again.
+          const still = matchMedia('(prefers-reduced-motion: reduce)');
+          const STEP = 1000 / 24;
+          let raf = 0, last = 0, next = 0, t = 0;
+          const loop = (now) => {
+            raf = requestAnimationFrame(loop);
+            if (now < next - 2) return;
+            next = (next && now - next < 100 ? next : now) + STEP;
+            const dt = last ? Math.min(0.1, (now - last) / 1000) : 0;
+            last = now; t += dt;
+            draw(t, dt);
+          };
+          const run = () => {
+            const go = !still.matches && !document.hidden;
+            if (go && !raf) { last = next = 0; raf = requestAnimationFrame(loop); }
+            else if (!go && raf) { cancelAnimationFrame(raf); raf = 0; }
+            if (still.matches) draw(40, 0);
+          };
           let rt;
-          addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { size(); if (calm) draw(40, 0); }, 150); });
-          if (calm) draw(40, 0);
-          else {
-            let last = 0, start = performance.now();
-            const loop = (now) => {
-              requestAnimationFrame(loop);
-              if (now - last < 33) return;
-              const dt = last ? Math.min(0.1, (now - last) / 1000) : 0;
-              last = now;
-              draw((now - start) / 1000, dt);
-            };
-            requestAnimationFrame(loop);
-          }
+          addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { size(); if (!raf) draw(still.matches ? 40 : t, 0); }, 150); });
+          document.addEventListener('visibilitychange', run);
+          still.addEventListener('change', run);
+          run();
         }
 
         // ---------- Every page ----------
@@ -352,11 +366,17 @@ const currentOf = (href: string, isSub = false) => {
           const signal = pageEnd.signal;
           root.classList.add('js-nav');
           setNav(false);
+          // Links to other sites open in a new tab, so the visitor keeps the portfolio open.
+          document.querySelectorAll('a[href^="http"]').forEach((a) => {
+            if (a.host === location.host) return;
+            a.target = '_blank';
+            a.rel = 'noopener';
+          });
 
           // The menu is not redrawn, so mark the current page here and open the submenu of the current section;
           // the hand glides to the page. "page" = this exact page, "true" = the section that contains it.
           const here = location.pathname.replace(/\/$/, '') || '/';
-          nav?.querySelectorAll('a').forEach((a) => {
+          document.querySelectorAll('.site-nav a, .tab-nav a').forEach((a) => {
             const u = new URL(a.href);
             const h = u.pathname.replace(/\/$/, '') || '/';
             const sub = a.dataset.sub;
@@ -391,22 +411,75 @@ const currentOf = (href: string, isSub = false) => {
           const lb = document.querySelector('.lightbox');
           if (lb && lb.showModal) {
             const big = lb.querySelector('img');
-            document.querySelectorAll('article img').forEach((im) => {
-              if (im.closest('a')) return;
+            const count = lb.querySelector('.lightbox-count');
+            // Only this page's images, in page order; the arrows go round from the last back to the first.
+            // Images inside a link or a button (the YouTube thumbnail) already do something else when clicked.
+            const pics = [...document.querySelectorAll('article img')].filter((im) => !im.closest('a, button'));
+            let at = 0, ask = 0;
+            // The largest version on offer, not the thumbnail the page picked, and its width in pixels.
+            const full = (im) => {
+              const last = (im.srcset || '').split(',').pop().trim().split(/\s+/);
+              return { url: last[0] || im.currentSrc || im.src, w: parseInt(last[1], 10) || im.naturalWidth || 1920 };
+            };
+            // Large versions already asked for, kept so the browser holds them ready.
+            const warm = new Map();
+            const fetchFull = (url) => {
+              let p = warm.get(url);
+              if (!p) { p = new Image(); p.decoding = 'async'; p.src = url; warm.set(url, p); }
+              return p;
+            };
+            const show = (i) => {
+              at = (i + pics.length) % pics.length;
+              const im = pics[at], f = full(im), n = ++ask;
+              // The box keeps its last image between openings. Until the large version is ready, show this page's
+              // own (already loaded) thumbnail at the final size, so the previous picture never flashes up.
+              big.style.setProperty('--ar', (im.naturalWidth / im.naturalHeight) || 16 / 9);
+              big.style.setProperty('--fw', f.w + 'px');
+              big.alt = im.alt;
+              count.textContent = pics.length > 1 ? (at + 1) + ' / ' + pics.length : '';
+              const p = fetchFull(f.url);
+              if (p.complete && p.naturalWidth) big.src = f.url;
+              else {
+                big.src = im.currentSrc || im.src;
+                // Only the latest request may swap in, so a slow download never replaces a newer image.
+                p.decode().catch(() => {}).then(() => { if (n === ask) big.src = f.url; });
+              }
+              // Fetch the neighbours too, so the arrows answer at once.
+              if (pics.length > 1) { fetchFull(full(pics[(at + 1) % pics.length]).url); fetchFull(full(pics[(at - 1 + pics.length) % pics.length]).url); }
+            };
+            lb.classList.toggle('single', pics.length < 2);
+            pics.forEach((im, i) => {
               im.classList.add('zoomable');
               im.tabIndex = 0;
               im.setAttribute('role', 'button');
               im.setAttribute('aria-label', 'Enlarge image: ' + im.alt);
-              const open = () => {
-                // The largest version on offer, not the thumbnail the page picked.
-                big.src = (im.srcset || '').split(',').pop().trim().split(' ')[0] || im.currentSrc || im.src;
-                big.alt = im.alt;
-                lb.showModal();
-              };
+              const open = () => { show(i); lb.showModal(); };
               im.addEventListener('click', open);
               im.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
             });
-            lb.addEventListener('click', () => lb.close());
+            const on = (target, type, fn, opts) => target.addEventListener(type, fn, { signal, ...opts });
+            const step = (e, d) => { e.stopPropagation(); if (pics.length > 1) show(at + d); };
+            on(lb.querySelector('.lightbox-nav.prev'), 'click', (e) => step(e, -1));
+            on(lb.querySelector('.lightbox-nav.next'), 'click', (e) => step(e, 1));
+            on(lb, 'keydown', (e) => {
+              if (e.key === 'ArrowLeft') step(e, -1);
+              else if (e.key === 'ArrowRight') step(e, 1);
+            });
+            // A sideways swipe changes image; the tap that ends it must not also close the box.
+            let x0 = null, y0 = 0, swiped = false;
+            on(lb, 'touchstart', (e) => { const t = e.touches[0]; x0 = e.touches.length === 1 ? t.clientX : null; y0 = t.clientY; }, { passive: true });
+            on(lb, 'touchend', (e) => {
+              if (x0 === null) return;
+              const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+              x0 = null;
+              if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                swiped = true;
+                if (e.cancelable) e.preventDefault();
+                step(e, dx < 0 ? 1 : -1);
+              }
+            });
+            on(lb, 'click', () => { if (swiped) { swiped = false; return; } lb.close(); });
+            on(lb, 'close', () => { swiped = false; });
           }
 
           // Sections come in as they are scrolled to.

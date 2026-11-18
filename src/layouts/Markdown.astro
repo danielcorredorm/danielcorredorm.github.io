@@ -24,7 +24,7 @@ const isFile = Object.keys(facts).length > 0;
 const media = mediaFor(slugOf(Astro.url.pathname));
 const shots = media.shots.slice(0, SHOTS).map((s) => s.img);
 ---
-<Site title={frontmatter.title} description={frontmatter.description}>
+<Site title={frontmatter.title} description={frontmatter.description} image={media.cover ?? undefined}>
   <article>
     <header class="page-head">
       <div>
@@ -55,7 +55,7 @@ const shots = media.shots.slice(0, SHOTS).map((s) => s.img);
       <ul class="gallery" aria-label="Screenshots">
         {shots.map((img, i) => (
           <li>
-            <Image src={img} alt={`${frontmatter.title}, screenshot ${i + 1}`} widths={[480, 1920]} sizes="(max-width: 700px) 50vw, 240px" />
+            <Image src={img} alt={frontmatter.shotAlts?.[i] ?? `${frontmatter.title}, screenshot ${i + 1}`} widths={[320, 640, 960, 1920]} sizes="(max-width: 700px) 50vw, 260px" />
           </li>
         ))}
       </ul>

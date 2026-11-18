@@ -1,7 +1,7 @@
 ---
 layout: ../../layouts/Markdown.astro
 title: "GAS action-combat demo"
-description: "Technical breakdown of a single-player action-combat demo in Unreal Engine 5.4 and C++: data-driven ability sets, tag-bound input, a custom root-motion dash task, combo windows and Magnitude Calculation costs."
+description: "Breakdown of an Unreal Engine 5.4 C++ action-combat demo: data-driven ability sets, tag-bound input, a custom root-motion dash task, combo windows and costs."
 tagline: "Technical breakdown · Unreal Engine 5.4 · C++ · Gameplay Ability System"
 facts:
   What: "Single-player third-person action-combat demo"
@@ -10,6 +10,12 @@ facts:
   Code: "C++ (gameplay framework, GAS, input, AI tasks) + Blueprints / data assets for content"
   Source: "<a href=\"https://github.com/danielcorredorm/Combat_Demo\">github.com/danielcorredorm/Combat_Demo</a>"
 source: "https://github.com/danielcorredorm/Combat_Demo"
+# Gallery alt texts, in the order of 1.jpg to 4.jpg
+shotAlts:
+  - "The grey player character kneels as red enemies leap overhead in the test arena, with control hints on the wall"
+  - "The player character lunges at a red enemy, both holding swords"
+  - "The player character crouches with a sword as two red enemies approach"
+  - "The player character raises a sword over a kneeling red enemy"
 video: "ylgzDHg4BoE"
 videoTitle: "GAS action-combat demo: gameplay video"
 ---

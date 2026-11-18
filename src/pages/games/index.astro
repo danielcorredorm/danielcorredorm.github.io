@@ -1,6 +1,8 @@
 ---
 import Base from '../../layouts/Site.astro';
+import { Image } from 'astro:assets';
 import { games } from '../../data/games.mjs';
+import { mediaFor, slugOf } from '../../data/media.mjs';
 ---
 <Base title="Games" description="Games Daniel Corredor has worked on as a gameplay engineer in Unreal Engine.">
   <h1>Games</h1>
@@ -8,8 +10,9 @@ import { games } from '../../data/games.mjs';
   <div class="cards">
     {games.map((g) => (
       <a class="card" href={g.href}>
+        {mediaFor(slugOf(g.href)).cover && <Image class="card-cover" src={mediaFor(slugOf(g.href)).cover} alt="" widths={[480, 960]} sizes="(max-width: 700px) 100vw, 560px" />}
         <div class="meta">{g.meta}</div>
-        <h3>{g.title}</h3>
+        <h2>{g.title}</h2>
         <p>{g.summary}</p>
       </a>
     ))}

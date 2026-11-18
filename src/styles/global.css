@@ -96,7 +96,6 @@ h3 { font-size: 19px; margin-top: 32px; }
   padding: 18px 20px; color: var(--text); text-decoration: none;
 }
 .card:hover { border-color: var(--accent); }
-.card h3 { margin: 0 0 6px; font-size: 18px; }
 .card p { margin: 0; color: var(--text-muted); font-size: 15px; }
 .card .meta { font-size: 13px; color: var(--accent); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.6px; }
 .card.featured { grid-column: 1 / -1; border-color: var(--accent); background: linear-gradient(var(--accent-soft), var(--accent-soft)), var(--bg-raised); }
@@ -105,36 +104,6 @@ h3 { font-size: 19px; margin-top: 32px; }
   display: inline-block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px;
   padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--text-muted);
 }
-
-/* Two-column card grid (Home "Featured work"): one column on phones */
-.cards.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-@media (max-width: 640px) {
-  .cards.cols-2 { grid-template-columns: 1fr; }
-}
-
-/* Home hero: portrait beside the intro, above it on phones */
-.hero { display: grid; grid-template-columns: 1fr 180px; gap: 32px; align-items: center; }
-.hero > div { grid-row: 1; grid-column: 1; }
-.hero .portrait {
-  grid-row: 1; grid-column: 2;
-  width: 180px; height: 180px; object-fit: cover; border-radius: 50%;
-  border: 3px solid var(--accent); background: var(--bg-raised);
-}
-@media (max-width: 640px) {
-  .hero { grid-template-columns: 1fr; gap: 20px; }
-  .hero .portrait { grid-row: auto; grid-column: auto; width: 120px; height: 120px; }
-  .hero > div { grid-row: auto; }
-}
-
-/* Buttons */
-.actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0 0; }
-.button {
-  display: inline-block; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--border);
-  color: var(--text); background: var(--bg-raised); text-decoration: none; font-weight: 600; font-size: 15px;
-}
-.button:hover { border-color: var(--accent); }
-.button.primary { background: var(--button-bg); border-color: var(--button-bg); color: var(--button-text); }
-.button.primary:hover { filter: brightness(1.08); }
 
 /* Draft-only notes. Remove every .todo before publishing (npm run todos lists them). */
 .todo {
@@ -149,7 +118,5 @@ pre { background: var(--bg-raised); border: 1px solid var(--border); border-radi
 pre code { background: none; border: 0; padding: 0; }
 
 img { max-width: 100%; height: auto; border-radius: var(--radius); }
-
-ul.contact { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 20px; }
 
 .site-footer { border-top: 1px solid var(--border); color: var(--text-muted); font-size: 14px; padding: 20px 0 32px; }

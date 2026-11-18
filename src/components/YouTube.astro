@@ -1,15 +1,28 @@
 ---
-// Responsive YouTube embed (privacy-enhanced domain, loads lazily).
+// YouTube video as a light facade: the thumbnail and a play button. The real player (privacy-enhanced domain)
+// loads only when the visitor clicks, so pages don't download YouTube's player code up front.
 interface Props { id: string; title: string }
 const { id, title } = Astro.props;
 ---
 <div class="video">
-  <iframe
-    src={`https://www.youtube-nocookie.com/embed/${id}`}
-    title={title}
-    loading="lazy"
-    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-    referrerpolicy="strict-origin-when-cross-origin"
-    allowfullscreen
-  ></iframe>
+  <button type="button" class="yt-facade" data-yt={id} data-title={title} aria-label={`Play video: ${title}`}>
+    <img src={`https://i.ytimg.com/vi/${id}/hqdefault.jpg`} alt="" loading="lazy" decoding="async" width="480" height="360" />
+    <span class="yt-play" aria-hidden="true"></span>
+  </button>
 </div>
+
+<script>
+  // One listener for every facade on every page (it survives ClientRouter navigation).
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as Element).closest<HTMLButtonElement>('.yt-facade');
+    if (!btn) return;
+    const frame = document.createElement('iframe');
+    frame.src = `https://www.youtube-nocookie.com/embed/${btn.dataset.yt}?autoplay=1`;
+    frame.title = btn.dataset.title ?? '';
+    frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    frame.referrerPolicy = 'strict-origin-when-cross-origin';
+    frame.allowFullscreen = true;
+    btn.replaceWith(frame);
+    frame.focus();
+  });
+</script>
