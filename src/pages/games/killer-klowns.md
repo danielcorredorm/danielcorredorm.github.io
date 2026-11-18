@@ -30,8 +30,9 @@ My work on the team was broad: I worked across many character abilities and shar
 
 Shorty, one of the Klowns, turns into a pizza box with legs, walks around the map blending into the scenery, and ambushes a human player with an uppercut that kills instantly.
 
-- I built the ability end to end on my own, with the Gameplay Ability System (GAS) and a mix of C++ and Blueprints.
+- I built the first version of the ability on my own, with the Gameplay Ability System (GAS) and a mix of C++ and Blueprints: the transformation, the movement and the ambush.
 - The hard part was multiplayer: keeping the sounds and animations in sync for every player.
+- The team kept polishing it after I left the project, so the final game looks better than my version did.
 
 ## Multiplayer bugs I fixed
 
