@@ -1,0 +1,10 @@
+---
+// Hidden page with the fishing mini-game, linked quietly from About. Kept out of search results and the sitemap.
+import Base from '../layouts/Site.astro';
+import FishingGame from '../components/FishingGame.astro';
+---
+<Base title="Side quest" description="A small fishing mini-game hidden in Daniel Corredor's portfolio." noindex>
+  <h1>Side quest</h1>
+  <p class="lead">You found the fishing spot. Cast your line, wait for the gold mark and click before it fades. The faster you react, the rarer the catch.</p>
+  <FishingGame />
+</Base>

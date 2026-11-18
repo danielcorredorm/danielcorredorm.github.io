@@ -1,0 +1,191 @@
+---
+// Small fishing mini-game (an easter egg on the 404 page and on /side-quest/).
+// Click or tap the water (or press Space/Enter on it) to cast; when the gold "!" shows, click again before it fades.
+// A faster reaction gives a better chance at a rare catch. Catches and the best streak are kept in this browser only.
+---
+<section class="fish" aria-label="Fishing mini-game">
+  <div class="fish-water" role="button" tabindex="0" aria-describedby="fish-msg" data-state="idle">
+    <span class="fish-line" aria-hidden="true"></span>
+    <span class="fish-bob" aria-hidden="true"></span>
+    <span class="fish-alert" aria-hidden="true">!</span>
+  </div>
+  <p class="fish-msg" id="fish-msg" aria-live="polite">Click the water to cast your line.</p>
+  <dl class="fish-stats">
+    <div><dt>Catches</dt><dd data-k="total">0</dd></div>
+    <div><dt>Streak</dt><dd data-k="streak">0</dd></div>
+    <div><dt>Best streak</dt><dd data-k="best">0</dd></div>
+  </dl>
+  <ul class="fish-log" aria-label="Last catches"></ul>
+</section>
+
+<script>
+  type Rarity = 'common' | 'rare' | 'epic' | 'legendary';
+  const LOOT: Record<Rarity, [string, string][]> = {
+    common: [
+      ['Old boot', 'Someone left it in the level since the prototype.'],
+      ['Tangled cable', 'The dev kit was looking for this.'],
+      ['Compiler warning', 'Harmless. Probably.'],
+      ['Merge conflict', 'It came up with half the file attached.'],
+      ['Unused Blueprint node', 'Still connected to nothing.'],
+    ],
+    rare: [
+      ['Replicated carp', 'It shows up on every client at once.'],
+      ['Gameplay Tag trout', 'Neatly labelled: Fish.Trout.Rare.'],
+      ['Hot-reload herring', 'Slippery: it changes while you hold it.'],
+      ['Shader cache salmon', 'It took a while to compile.'],
+    ],
+    epic: [
+      ['Gameplay Ability eel', 'Comes with its own cooldown.'],
+      ['Niagara jellyfish', 'Glows in 40,000 particles.'],
+      ['Lag-free pike', 'Server and client agree on where it is.'],
+    ],
+    legendary: [
+      ['Bug-free build', 'Nobody believes you caught it.'],
+      ['Golden 60 FPS koi', 'Steady frame time, even on console.'],
+    ],
+  };
+  const LABEL: Record<Rarity, string> = { common: 'Common', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' };
+  const KEY = 'side-quest-fishing';
+
+  const pick = (ms: number, window: number): Rarity => {
+    // The quicker the click inside the window, the luckier the roll.
+    const speed = 1 - Math.min(1, ms / window);
+    const r = Math.random() * 100 - speed * 12;
+    if (r < 2) return 'legendary';
+    if (r < 12) return 'epic';
+    if (r < 42) return 'rare';
+    return 'common';
+  };
+
+  let stopGame: (() => void) | undefined;
+
+  const init = () => {
+    stopGame?.();
+    stopGame = undefined;
+    const root = document.querySelector<HTMLElement>('.fish');
+    if (!root) return;
+    const water = root.querySelector<HTMLElement>('.fish-water')!;
+    const msg = root.querySelector<HTMLElement>('.fish-msg')!;
+    const log = root.querySelector<HTMLElement>('.fish-log')!;
+    const out = (k: string) => root.querySelector<HTMLElement>(`[data-k="${k}"]`)!;
+
+    let saved = { total: 0, best: 0 };
+    try { saved = { ...saved, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch {}
+    let streak = 0;
+    const show = () => {
+      out('total').textContent = String(saved.total);
+      out('streak').textContent = String(streak);
+      out('best').textContent = String(saved.best);
+    };
+    const save = () => { try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch {} };
+    show();
+
+    let state: 'idle' | 'wait' | 'bite' = 'idle';
+    let timer = 0, biteAt = 0, window = 0;
+    const set = (s: typeof state, text: string) => { state = s; water.dataset.state = s; msg.textContent = text; };
+    const miss = (text: string) => {
+      clearTimeout(timer);
+      streak = 0; show();
+      set('idle', text + ' Click to cast again.');
+    };
+
+    const act = () => {
+      if (state === 'idle') {
+        set('wait', 'Waiting for a bite…');
+        const bite = () => {
+          // How long the "!" stays is random too (between ~0.3 and ~0.8 s) and gets shorter as the streak grows.
+          const hard = Math.min(1, streak / 10);
+          const low = 300 - hard * 80, high = 800 - hard * 350;
+          window = low + Math.random() * (high - low);
+          biteAt = performance.now();
+          set('bite', 'Something bit! Click now!');
+          timer = setTimeout(() => miss('It got away.'), window);
+        };
+        // Sometimes a fish only nibbles first: the float twitches with no "!", and clicking then is too early.
+        const nibble = () => {
+          water.dataset.state = 'nibble';
+          timer = setTimeout(() => {
+            water.dataset.state = 'wait';
+            timer = setTimeout(Math.random() < 0.3 ? nibble : bite, 500 + Math.random() * 1500);
+          }, 260);
+        };
+        timer = setTimeout(Math.random() < 0.5 ? nibble : bite, 1200 + Math.random() * 3000);
+      } else if (state === 'wait') {
+        miss('Too early, the fish got scared.');
+      } else {
+        clearTimeout(timer);
+        const ms = performance.now() - biteAt;
+        const rarity = pick(ms, window);
+        const list = LOOT[rarity];
+        const [name, note] = list[Math.floor(Math.random() * list.length)];
+        streak++; saved.total++; saved.best = Math.max(saved.best, streak); save(); show();
+        const li = document.createElement('li');
+        li.className = 'is-' + rarity;
+        li.innerHTML = '<b></b><span></span>';
+        li.querySelector('b')!.textContent = `${LABEL[rarity]} · ${name}`;
+        li.querySelector('span')!.textContent = note;
+        log.prepend(li);
+        while (log.children.length > 4) log.lastElementChild!.remove();
+        set('idle', `You caught: ${name} (${Math.round(ms)} ms). Click to cast again.`);
+      }
+    };
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); act(); }
+    };
+    water.addEventListener('click', act);
+    water.addEventListener('keydown', onKey);
+    stopGame = () => {
+      clearTimeout(timer);
+      water.removeEventListener('click', act);
+      water.removeEventListener('keydown', onKey);
+    };
+  };
+
+  document.addEventListener('astro:page-load', init);
+</script>
+
+<style is:global>
+  .fish { margin: 40px 0 0; max-width: 640px; }
+  .fish-water {
+    position: relative; height: 220px; overflow: hidden; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+    border: 1px solid rgba(111, 216, 255, 0.4);
+    background:
+      repeating-linear-gradient(180deg, rgba(111, 216, 255, 0) 0 22px, rgba(111, 216, 255, 0.10) 22px 23px),
+      linear-gradient(180deg, rgba(10, 30, 70, 0.55) 0 38%, rgba(18, 70, 140, 0.55) 38%, rgba(6, 22, 56, 0.75));
+  }
+  .fish-water::before { content: ""; position: absolute; left: 0; right: 0; top: 38%; height: 1px; background: rgba(111, 216, 255, 0.6); }
+  .fish-water:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .fish-line { position: absolute; left: 50%; top: 0; height: calc(38% - 8px); width: 1px; background: rgba(238, 244, 255, 0.55); opacity: 0; transition: opacity 0.2s; }
+  .fish-bob {
+    position: absolute; left: calc(50% - 9px); top: calc(38% - 9px); width: 18px; height: 18px; border-radius: 50%;
+    background: linear-gradient(180deg, #ff6b6b 0 50%, #eef4ff 50%); box-shadow: 0 0 0 1px rgba(5, 11, 28, 0.6);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .fish-alert {
+    position: absolute; left: calc(50% - 14px); top: calc(38% - 64px); width: 28px; text-align: center;
+    font: 700 40px/1 var(--ui); color: var(--gold); text-shadow: 0 0 14px rgba(242, 211, 138, 0.8);
+    opacity: 0; transform: scale(0.6); transition: opacity 0.08s, transform 0.12s;
+  }
+  .fish-water:not([data-state="idle"]) .fish-line, .fish-water:not([data-state="idle"]) .fish-bob { opacity: 1; }
+  .fish-water[data-state="wait"] .fish-bob { animation: fish-float 1.6s ease-in-out infinite; }
+  .fish-water[data-state="bite"] .fish-bob { transform: translateY(8px); }
+  .fish-water[data-state="nibble"] .fish-bob { transform: translateY(5px); transition: opacity 0.2s, transform 0.06s; }
+  .fish-water[data-state="bite"] .fish-alert { opacity: 1; transform: none; }
+  @keyframes fish-float { 50% { transform: translateY(4px); } }
+  @media (prefers-reduced-motion: reduce) {
+    .fish-water[data-state="wait"] .fish-bob { animation: none; }
+  }
+  .fish-msg { margin: 14px 0 0; font: 600 15px/1.4 var(--ui); letter-spacing: 0.5px; color: var(--text); min-height: 2.8em; }
+  .fish-stats { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 8px 0 0; }
+  .fish-stats div { display: flex; gap: 8px; align-items: baseline; }
+  .fish-stats dt { font: 600 12px/1 var(--ui); letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+  .fish-stats dd { margin: 0; font: 700 18px/1 var(--ui); color: var(--gold); }
+  .fish-log { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 8px; }
+  .fish-log li { padding: 8px 12px; border-left: 2px solid var(--c, var(--text-muted)); background: rgba(13, 38, 88, 0.4); }
+  .fish-log b { display: block; font: 600 14px/1.3 var(--ui); letter-spacing: 0.5px; color: var(--c, var(--text)); }
+  .fish-log span { font-size: 14px; color: var(--text-muted); }
+  .fish-log .is-rare { --c: var(--accent); }
+  .fish-log .is-epic { --c: #c9a2ff; }
+  .fish-log .is-legendary { --c: var(--gold); }
+</style>

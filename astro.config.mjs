@@ -11,6 +11,6 @@ export default defineConfig({
     '/projects/ils-demo/': '/projects/combat-demo/',
   },
   // Builds sitemap-index.xml so search engines get the full list of pages.
-  // Old redirect addresses are left out.
-  integrations: [sitemap({ filter: (page) => !page.includes('/projects/ils-demo') })],
+  // Old redirect addresses and the hidden side-quest page are left out.
+  integrations: [sitemap({ filter: (page) => !page.includes('/projects/ils-demo') && !page.includes('/side-quest') })],
 });

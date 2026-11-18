@@ -34,3 +34,5 @@ I'm a gameplay engineer from Bogotá, Colombia. I have worked in Unreal Engine (
 
 - **Spanish**: native.
 - **English**: B2, professional working proficiency.
+
+<p class="side-quest-link"><a href="/side-quest/">◆ Side quest available</a></p>

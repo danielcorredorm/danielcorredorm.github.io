@@ -1,6 +1,7 @@
 ---
 // Page for any address that does not exist. GitHub Pages serves the built 404.html on its own.
 import Base from '../layouts/Site.astro';
+import FishingGame from '../components/FishingGame.astro';
 ---
 <Base title="Page not found" description="This page does not exist on Daniel Corredor's portfolio.">
   <h1>Page not found</h1>
@@ -10,4 +11,7 @@ import Base from '../layouts/Site.astro';
     <a class="src-btn" href="/games/">Games</a>
     <a class="src-btn" href="/projects/">Projects</a>
   </p>
+  <h2>While you're here</h2>
+  <p>The page is lost, but the fishing is good.</p>
+  <FishingGame />
 </Base>
