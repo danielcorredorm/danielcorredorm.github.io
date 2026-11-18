@@ -9,7 +9,7 @@ facts:
   Dates: "May 2023 – Dec 2024 (with Contenders: Arena)"
   Game: "3D third-person multiplayer resource management"
   Platform: "PC (Steam Early Access)"
-  Tech: "Unreal Engine 4, C++, Blueprints, Behavior Trees, Blackboards, NavMesh"
+  Tech: "Unreal Engine 5, C++, Blueprints, Behavior Trees, Blackboards, NavMesh"
   Links: "<a href=\"https://store.steampowered.com/app/3225370/Oh_Hel_No/\">Steam</a>"
 # Gallery alt texts, in the order of 1.jpg to 4.jpg
 shotAlts:

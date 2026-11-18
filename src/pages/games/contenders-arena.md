@@ -9,7 +9,7 @@ facts:
   Dates: "May 2023 – Dec 2024 (with Oh, Hel No!)"
   Game: "3D third-person multiplayer shooter"
   Platform: "PC (Steam Early Access)"
-  Tech: "Unreal Engine 4, C++, Blueprints, Gameplay Ability System"
+  Tech: "Unreal Engine 4, migrated to Unreal Engine 5 during development · C++, Blueprints, Gameplay Ability System"
   Links: "<a href=\"https://store.steampowered.com/app/2445510/Contenders_Arena/\">Steam</a> · <a href=\"https://gamerant.com/contenders-arena-hands-on-preview/\">Game Rant preview</a>"
 # Gallery alt texts, in the order of 1.jpg to 4.jpg
 shotAlts:
